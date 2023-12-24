@@ -1,0 +1,16 @@
+Package: MedBioInfoCloud
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: DoubleHelix
+Maintainer: The package maintainer <bioinfocloud@aliyun.com>
+Description: An R package of related tutorials on WeChat official account MedBioInfoCloud
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    GenomicFeatures,
+    magrittr
+Depends: 
+    R (>= 4.0)
+RoxygenNote: 7.2.1

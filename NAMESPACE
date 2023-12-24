@@ -1,0 +1,13 @@
+exportPattern("^[[:alpha:]]+")
+export("%>%")
+export(Counts2TPM)
+export(Counts2FPKM)
+export(FPKM2TPM)
+export(RNAseqDataTrans)
+export(getGeneLenFromeGTF)
+export(getGeneInfoFromeGTF)
+export(getGeneBaseInfo)
+import(GenomicFeatures)
+import(magrittr)
+importFrom(magrittr,"%>%")
+
