@@ -1,13 +1,42 @@
 Some functions or data involved in the relevant tutorials published on the WeChat official account [MedBioInfoCloud](https://github.com/BioInfoCloud/MedBioInfoCloud) are encapsulated in this R package.
 
-## install package
+## Install package
 
 ```R
 # install.packages("devtools")
 devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 ```
 
-## TCGA数据库数据下载
+## TCGA数据库数据挖掘相关函数
+
+### 1.下载RNAseq数据
+
+getTCGA_RNAseqData()返回一个list，包括count,tpm和fpkm 3个数据框。
+
+```R
+STARdata <- getTCGA_RNAseqData("TCGA-LUAD")
+```
+
+### 2.下载蛋白组数据
+
+getProteinExp()返回一个数据框。
+
+```R
+Proteome_data <- getProteinExp("TCGA-LUAD")
+```
+
+### 过滤表达数据
+
+filterGeneTypeExpr()根据某列里面是数据进行过滤，保留filter值的数据。该函数仅使用于getTCGA_RNAseqData获取的count,tpm和fpkm 3个数据框。
+
+```R
+STARdata <- getTCGA_RNAseqData("TCGA-LUAD")
+expr <- STARdata[["count"]]
+table(expr$gene_type)
+pc.expr <- filterGeneTypeExpr(expr = expr,fil_col = "gene_type",filter = "protein_coding")
+```
+
+## 数据下载
 
 下载的数据是R对象：
 
