@@ -79,23 +79,23 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 
 #' A function for differential expression analysis
 #'
-#' @param counts for matrix input: a matrix of non-negative integers
+#' @param data for matrix input: a matrix of non-negative integers
 #' @param group for matrix input: a DataFrame or data.frame with at least a single column. Rows of group correspond to columns of countData
 #' @param comparison A string linked by "-" that represents the grouping information in the group. Such as "tumor-normal".
-#' @param method One of deseq2, edger, and limma.
+#' @param method One of DESeq2, edgeR, and limma.
 #' @param filter TRUE or FALSE
 #'
 #' @return A data.frame
 #' @export
 #'
 #' @examples
-countsDEAnalysis <- function (counts, group, comparison,
+geneDEAnalysis <- function (data, group, comparison,
                               method = "DESeq2", filter = TRUE){
-  dge = DGEList(counts = counts)
+  dge = DGEList(counts = data)
   keep <- rowSums(cpm(dge) > 1) >= 0.5 * length(group)
   if (method == "DESeq2") {
     coldata <- data.frame(group)
-    dds <- DESeqDataSetFromMatrix(countData = counts, colData = coldata, design = ~group)
+    dds <- DESeqDataSetFromMatrix(countData = data, colData = coldata, design = ~group)
     dds$group <- factor(dds$group, levels = rev(strsplit(comparison, "-", fixed = TRUE)[[1]]))
     if (filter == TRUE) {
       dds <- dds[keep, ]
