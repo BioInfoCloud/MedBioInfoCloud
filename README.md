@@ -9,6 +9,8 @@ devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 
 ## TCGA数据库数据挖掘相关函数
 
+TCGA数据库首页：[GDC Data Portal Homepage (cancer.gov)](https://portal.gdc.cancer.gov/)
+
 ### 1.下载RNAseq数据
 
 getTCGA_RNAseqData()返回一个list，包括count,tpm和fpkm 3个数据框。
@@ -24,6 +26,16 @@ getProteinExp()返回一个数据框。
 ```R
 Proteome_data <- getProteinExp("TCGA-LUAD")
 ```
+
+### 3.下载SNV（simple nucleotide variation）数据
+
+数据类型为：Masked Somatic Mutation。
+
+```
+snv.dat = getSNV_Masked_data("TCGA-LUAD")
+```
+
+
 
 ### 过滤表达数据
 

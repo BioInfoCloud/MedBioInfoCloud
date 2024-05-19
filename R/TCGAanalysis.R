@@ -50,10 +50,34 @@ getProteinExp <- function(project,save = FALSE,folder = "."){
   GDCdownload(query)
   Proteome_data <- TCGAbiolinks::GDCprepare(query)
   if(save == TRUE){
-    save(STARdata,file = paste0(folder,"/",project,"-STARdata.Rdata"))
+    save(Proteome_data,file = paste0(folder,"/",project,"-Proteome.Rdata"))
   }
   return(Proteome_data)
 }
+
+#' getSNV_Masked_data
+#'
+#' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
+#' @param save TRUE or FALSE
+#' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSNV_Masked_data <- function(project,save = FALSE,folder = "."){
+  query_SNV <-GDCquery(project = project,
+                       data.category = "Simple Nucleotide Variation",
+                       data.type = "Masked Somatic Mutation",
+                       workflow.type = "Aliquot Ensemble Somatic Variant Merging and Masking")
+  GDCdownload(query_SNV)
+  snv <- GDCprepare(query_SNV)
+  if(save == TRUE){
+    save(snv,file = paste0(folder,"/",project,"-SNV_MaskedSomaticMutation.Rdata"))
+  }
+  return(snv)
+}
+
 
 #' In the expression matrix of TCGA tumor samples, the data of duplicate patients were deleted.
 #'
