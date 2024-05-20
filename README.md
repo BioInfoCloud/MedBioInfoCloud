@@ -31,8 +31,28 @@ Proteome_data <- getProteinExp("TCGA-LUAD")
 
 数据类型为：Masked Somatic Mutation。
 
+```R
+snv.dat <- getSNV_Masked_data("TCGA-LUAD")
 ```
-snv.dat = getSNV_Masked_data("TCGA-LUAD")
+
+### 4.miRNA数据下载
+
+参考文章：
+
+[https://mp.weixin.qq.com/s/__EjCrJFc08itoF3xqawNg](https://mp.weixin.qq.com/s/__EjCrJFc08itoF3xqawNg)
+[https://mp.weixin.qq.com/s/-FH0Vi4PaCjhPbEq4-lxbg](https://mp.weixin.qq.com/s/-FH0Vi4PaCjhPbEq4-lxbg)
+[https://mp.weixin.qq.com/s/WxgMhwpMAJy_CKTqNdFj0g](https://mp.weixin.qq.com/s/WxgMhwpMAJy_CKTqNdFj0g)
+
+#### （1）Isoform Expression Quantification
+
+```R
+IsoformEQ <- get_miRNA_IsoformEQ("TCGA-LUAD")
+```
+
+#### （2）miRNA Expression Quantification
+
+```R
+miRNAEQ <- get_miRNAEQ("TCGA-LUAD")
 ```
 
 

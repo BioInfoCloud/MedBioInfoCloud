@@ -15,6 +15,7 @@ Imports:
     GenomicFeatures,
     limma,
     magrittr,
+    miRBaseVersions.db,
     TCGAbiolinks
 Depends: 
     R (>= 4.0)
