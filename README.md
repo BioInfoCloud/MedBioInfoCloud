@@ -70,11 +70,11 @@ MetData <- getMetData("TCGA-LUAD")
 getCNV.data()函数还在优化中：
 
 ```R
-getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number")
+cnv.gl <- getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number")
 ```
 
 ```R
-getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number Scores")
+cnv.gls <-getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number Scores")
 ```
 
 ### 7. 下载临床数据

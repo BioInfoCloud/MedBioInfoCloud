@@ -78,8 +78,6 @@ getSNV_Masked_data <- function(project,save = FALSE,folder = "."){
   return(snv)
 }
 
-
-
 #' get_miRNA_IsoformEQ
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
