@@ -118,9 +118,7 @@ turexp <- splitTCGAmatrix(data = expr[,-c(1:3)],sample = "Tumor")
 norexp <- splitTCGAmatrix(data = expr[,-c(1:3)],sample = "Normal")
 ```
 
-
-
-## 数据下载
+## 10. 数据打包下载
 
 下载的数据是R对象：
 
@@ -134,6 +132,24 @@ Survival和Phenotype数据（fromUCSC）：[微信公众号生物信息云提供
 
 临床数据：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1KDO2gx-lnejeuInVZSEPFQ?pwd=0k83)
 
+### 11 . 获取某个基因在泛癌中的表达数据
+
+geneSymbol是要分析的基因名称；dataType是tpm,fpkm和count中的一种；datafolder来自 getTCGA_RNAseqData()函数下载数据，并存放在某个文件夹中，或者从这里下载（RNAseq：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1VWz8bIlgKaUKR0ncughBhg?pwd=e6wz )），但这里下载的数据没有fpkm；geneType参照函数filterGeneTypeExpr()中的fil_col，pattern正则表达式匹配datafolder中的数据文件；nnorn表示至少包含几个正常样本；得到的数据进行了log2转换。
+
+```R
+geneSymbol = "ATG7"
+datafolder = "G:/DatabaseData/TCGA/new/processedTCGAdata/TCGA-STAR_Exp"
+df = getGeneExpData.fancancer(datafolder,
+                              geneSymbol,
+                              geneType = "protein_coding",
+                              dataType = "tpm",
+                              pattern = "STARdata.Rdata$",
+                              nnorn = 10)
+```
+
+得到的数据样式如下：
+
+![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240521220111.png)
 
 ## 三.基础分析相关函数的使用
 
