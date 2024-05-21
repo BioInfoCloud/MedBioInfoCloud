@@ -40,7 +40,9 @@ snv.dat <- getSNV_Masked_data("TCGA-LUAD")
 参考文章：
 
 [https://mp.weixin.qq.com/s/__EjCrJFc08itoF3xqawNg](https://mp.weixin.qq.com/s/__EjCrJFc08itoF3xqawNg)
+
 [https://mp.weixin.qq.com/s/-FH0Vi4PaCjhPbEq4-lxbg](https://mp.weixin.qq.com/s/-FH0Vi4PaCjhPbEq4-lxbg)
+
 [https://mp.weixin.qq.com/s/WxgMhwpMAJy_CKTqNdFj0g](https://mp.weixin.qq.com/s/WxgMhwpMAJy_CKTqNdFj0g)
 
 #### （1）Isoform Expression Quantification
@@ -77,6 +79,10 @@ getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy N
 
 ### 7. 下载临床数据
 
+```R
+cldat <- getClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = TRUE)
+```
+
 针对的癌症类型：
 
 ```R
@@ -86,9 +92,11 @@ c("TCGA-READ","TCGA-COAD","TCGA-PAAD","TCGA-ESCA","TCGA-KIRP","TCGA-HNSC",
              "TCGA-BRCA","TCGA-TGCT","TCGA-THCA")
 ```
 
-由于每种癌症类型的临床信息有差异，其他癌症类型，获取临床数据可能会报错，getClinicalData()
+由于每种癌症类型的临床信息有差异，其他癌症类型，获取临床数据可能会报错，可以通过指定getClinicalData()中的trim = FALSE，返回原始未整理过的数据。
 
-还在开发中......
+```R
+cldat <- getClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = FALSE)
+```
 
 ### 8. 过滤表达数据
 
