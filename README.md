@@ -109,7 +109,7 @@ table(expr$gene_type)
 pc.expr <- filterGeneTypeExpr(expr = expr,fil_col = "gene_type",filter = "protein_coding")
 ```
 
-### 9.分割RNAseq表达数据
+### 9.分割数据
 
 splitTCGAmatrix()，data的列应该是TCGA病人样本的barcode，参数sample的值为"Tumor"或"Normal"，指定sample ="Normal"时，当样本中没有正常样本返回NULL。
 
@@ -170,7 +170,7 @@ fig <- ggplotGeneFancancerExp(data = df,gene= "ATG7",
 geneDEAnalysis：
 
 ```R
-geneDEAnalysis <- function (data, group, comparison,method = "DESeq2", filter = TRUE)
+geneDEAnalysis(data, group, comparison,method = "DESeq2", filter = TRUE)
 ```
 
 data为表达数据，行为基因名称，列为样本名称，group是一个数据框，只有一列为group的值，其值是二分类的字符串标签（如：Tumor，Normal），行名为样本名称，其顺序与data的列名一致。comparison是一个由group中的二分类标签值用-链接，如"Tumor-Normal"，表示Tumor组与Normal进行差异表达分析。method是DESeq2, edgeR和 limma中的一种，RNAseq数据建议使用DESeq2或edgeR，芯片数据使用limma。filter是否过滤数据，默认为TRUE。
