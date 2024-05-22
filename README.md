@@ -134,22 +134,34 @@ Survival和Phenotype数据（fromUCSC）：[微信公众号生物信息云提供
 
 ### 11 . 获取某个基因在泛癌中的表达数据
 
-geneSymbol是要分析的基因名称；dataType是tpm,fpkm和count中的一种；datafolder来自 getTCGA_RNAseqData()函数下载数据，并存放在某个文件夹中，或者从这里下载（RNAseq：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1VWz8bIlgKaUKR0ncughBhg?pwd=e6wz )），但这里下载的数据没有fpkm；geneType参照函数filterGeneTypeExpr()中的fil_col，pattern正则表达式匹配datafolder中的数据文件；nnorm表示至少包含几个正常样本；得到的数据进行了log2转换。
+geneSymbol是要分析的基因名称的向量；dataType是tpm,fpkm和count中的一种；datafolder来自 getTCGA_RNAseqData()函数下载数据，并存放在某个文件夹中，或者从这里下载（RNAseq：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1VWz8bIlgKaUKR0ncughBhg?pwd=e6wz )），但这里下载的数据没有fpkm；geneType参照函数filterGeneTypeExpr()中的fil_col，pattern正则表达式匹配datafolder中的数据文件；paired指定是否只获取配对样本的数据；nnorm表示至少包含几个正常样本；得到的数据进行了log2转换。
 
 ```R
-geneSymbol = "ATG7"
+geneSymbol = c("ATG7","ATG12")
 datafolder = "G:/DatabaseData/TCGA/new/processedTCGAdata/TCGA-STAR_Exp"
 df = getGeneExpData.fancancer(datafolder,
                               geneSymbol,
                               geneType = "protein_coding",
                               dataType = "tpm",
                               pattern = "STARdata.Rdata$",
+                              paired = FALSE,
                               nnorm = 10)
 ```
 
 得到的数据样式如下：
 
-![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240521220111.png)
+![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240522130053.png)
+
+### 12. 单基因在泛癌中表达的箱型图可视化
+
+data是由 getGeneExpData.fancancer得到的数据，gene是一个基因，字符串类型；paired表示数据是否是配对样本。
+
+```R
+fig <- ggplotGeneFancancerExp(data = df,gene= "ATG7",
+                              save = FALSE,folder = ".",paired = FALSE)
+```
+
+![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240522131135.png)
 
 ## 三.基础分析相关函数的使用
 
