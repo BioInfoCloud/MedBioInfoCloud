@@ -1,4 +1,4 @@
-Some functions or data involved in the relevant tutorials published on the WeChat official account [MedBioInfoCloud](https://github.com/BioInfoCloud/MedBioInfoCloud) are encapsulated in this R package.
+Functions and data relevant to the tutorials published on the WeChat official account  [MedBioInfoCloud](https://github.com/BioInfoCloud/MedBioInfoCloud) are encapsulated in this R package. For more learning materials, please refer to [BioInfoCloud](https://bioinfocloud.github.io/note/).
 
 ## 一. Install package
 

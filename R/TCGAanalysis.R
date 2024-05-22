@@ -1,18 +1,18 @@
 
 
 
-geneSymbol = "FBXO22"
+geneSymbol = c("FBXO22","ATG7","ATG12")
 datafolder = "G:/DatabaseData/TCGA/new/processedTCGAdata/TCGA-STAR_Exp"
 getGeneExpData.fancancer <- function(datafolder,
                                      geneSymbol,
                                      geneType = "protein_coding",
                                      dataType = "tpm",
                                      pattern = "STARdata.Rdata$",
-                                     nnorn = 10){
+                                     nnorm = 10){
   FilePath <- dir(datafolder,pattern,full.names = T)
   if(length(FilePath) > 0){
     ###TCGA数据库中33中癌症类型
-    projects <- getGDCprojects()$project_id
+    projects <- TCGAbiolinks::getGDCprojects()$project_id
     projects <- projects[grep("TCGA-",projects)]
     geneexpdata <- data.frame()
     for(project in projects){
@@ -23,7 +23,8 @@ getGeneExpData.fancancer <- function(datafolder,
       data <- filterGeneTypeExpr(expr =data,
                                 fil_col = "gene_type",
                                 filter = geneType)
-      if(geneSymbol %in% rownames(data)){
+      geneSymbol <- intersect(geneSymbol,rownames(data))
+      if(length(geneSymbol)>=1){
         turexp <- splitTCGAmatrix(data = data,sample = "Tumor")
         norexp <- splitTCGAmatrix(data = data,sample = "Normal")
         if(!is.null(ncol(norexp))){
@@ -54,7 +55,7 @@ df = getGeneExpData.fancancer(datafolder,
                               geneSymbol,
                               geneType = "protein_coding",
                               pattern = "STARdata.Rdata$",
-                              nnorn = 10)
+                              nnorm = 10)
 
 data = df
 data$SampleType = gsub("[(].*?[)]","",data$Sample)
