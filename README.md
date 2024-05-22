@@ -134,7 +134,7 @@ Survival和Phenotype数据（fromUCSC）：[微信公众号生物信息云提供
 
 ### 11 . 获取某个基因在泛癌中的表达数据
 
-geneSymbol是要分析的基因名称；dataType是tpm,fpkm和count中的一种；datafolder来自 getTCGA_RNAseqData()函数下载数据，并存放在某个文件夹中，或者从这里下载（RNAseq：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1VWz8bIlgKaUKR0ncughBhg?pwd=e6wz )），但这里下载的数据没有fpkm；geneType参照函数filterGeneTypeExpr()中的fil_col，pattern正则表达式匹配datafolder中的数据文件；nnorn表示至少包含几个正常样本；得到的数据进行了log2转换。
+geneSymbol是要分析的基因名称；dataType是tpm,fpkm和count中的一种；datafolder来自 getTCGA_RNAseqData()函数下载数据，并存放在某个文件夹中，或者从这里下载（RNAseq：[微信公众号生物信息云提供的链接](https://pan.baidu.com/s/1VWz8bIlgKaUKR0ncughBhg?pwd=e6wz )），但这里下载的数据没有fpkm；geneType参照函数filterGeneTypeExpr()中的fil_col，pattern正则表达式匹配datafolder中的数据文件；nnorm表示至少包含几个正常样本；得到的数据进行了log2转换。
 
 ```R
 geneSymbol = "ATG7"
@@ -144,7 +144,7 @@ df = getGeneExpData.fancancer(datafolder,
                               geneType = "protein_coding",
                               dataType = "tpm",
                               pattern = "STARdata.Rdata$",
-                              nnorn = 10)
+                              nnorm = 10)
 ```
 
 得到的数据样式如下：
