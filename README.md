@@ -165,12 +165,20 @@ fig <- ggplotGeneFancancerExp(data = df,gene= "ATG7",
 
 ## 三.一些数据处理和分析过程中的基础函数
 
-outputGmtFile()函数中description默认为NA，如果指定，应该是一个长度与input相同，用于描述每个基因集的字符串向量。filename应该是一个.gmt结尾的文件名称，可包括路径。input是一个list或是一个data.frame【data.frame代码还为写】，如果是list，list中每一个对象是一个向量（基因），每一个对象应该有一个合适的名称，相当于基因集的名称，下面是一个input接收list数据对象案例：
+outputGmtFile()函数中description默认为NA，如果指定，应该是一个长度与input相同，用于描述每个基因集的字符串向量。filename应该是一个.gmt结尾的文件名称，可包括路径。input是一个list或是一个data.frame，如果是list，list中每一个对象是一个向量（基因），每一个对象应该有一个合适的名称，相当于基因集的名称，下面是一个input接收list数据对象案例：
 
 ![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240523205319.png)
 
 ```R
 outputGmtFile(input = genes,description = NA,filename = "./gs.gmt")
+```
+
+如果input是一个数据框，应该包括两列，第一列是关于基因集描述的术语，第二列是基因，这时，如果需要指定description的值，长度应该等于input第一列值作为集合的长度。下面是一个input输入作为数据框的案例：
+
+![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240523211219.png)
+
+```
+outputGmtFile(input = cg,description = NA,filename = "./gs.gmt")
 ```
 
 
