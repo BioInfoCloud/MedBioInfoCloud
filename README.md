@@ -163,7 +163,19 @@ fig <- ggplotGeneFancancerExp(data = df,gene= "ATG7",
 
 ![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240522131135.png)
 
-## 三.基础分析相关函数的使用
+## 三.一些数据处理和分析过程中的基础函数
+
+outputGmtFile()函数中description默认为NA，如果指定，应该是一个长度与input相同，用于描述每个基因集的字符串向量。filename应该是一个.gmt结尾的文件名称，可包括路径。input是一个list或是一个data.frame【data.frame代码还为写】，如果是list，list中每一个对象是一个向量（基因），每一个对象应该有一个合适的名称，相当于基因集的名称，下面是一个input接收list数据对象案例：
+
+![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240523205319.png)
+
+```R
+outputGmtFile(input = genes,description = NA,filename = "./gs.gmt")
+```
+
+
+
+## 四.基础分析相关函数的使用
 
 ### 1.差异表达分析
 
