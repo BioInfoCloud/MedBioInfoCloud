@@ -1,4 +1,4 @@
-#' getGeneExpData.fancancer
+#' getGeneExpData.pancancer
 #'
 #' @param datafolder is the folder where the data is stored, downloaded using the getTCGA_RNAseqData().
 #' @param geneSymbol is a vector of gene names to be analyzed.
@@ -12,7 +12,7 @@
 #' @export
 #'
 #' @examples
-getGeneExpData.fancancer <- function(datafolder,
+getGeneExpData.pancancer <- function(datafolder,
                                      geneSymbol,
                                      geneType = "protein_coding",
                                      dataType = "tpm",
@@ -77,7 +77,7 @@ getGeneExpData.fancancer <- function(datafolder,
 }
 
 
-#' ggplotGeneFancancerExp
+#' ggplotGenePancancerExp
 #'
 #' @param data is obtained from the getGeneExpData.fancancer function, representing the gene expression data.
 #' @param gene is a string representing a specific gene.
@@ -89,7 +89,7 @@ getGeneExpData.fancancer <- function(datafolder,
 #' @export
 #'
 #' @examples
-ggplotGeneFancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){
+ggplotGenePancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){
   if(gene %in% data$gene){
     data <- data[data$gene == gene,]
     data$SampleType = gsub("[(].*?[)]","",data$Sample)
@@ -116,7 +116,5 @@ ggplotGeneFancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = 
     return(p)
   }
 }
-fig <- ggplotGeneFancancerExp(data = df,gene= "ATG7",
-                              save = FALSE,folder = ".",paired = TRUE)
 
 

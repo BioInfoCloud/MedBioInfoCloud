@@ -336,3 +336,76 @@ splitTCGAmatrix <- function(data,sample = "Tumor"){
 }
 
 
+#' mergeSurExp
+#'
+#' @param expr For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param survival For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param Timeunit For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param survivalFrome For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param TCGA For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param TCGAfrome For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param feature For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return a data.frame
+#' @export
+#'
+#' @examples
+mergeSurExp <- function(expr
+                        ,survival
+                        ,Timeunit=1
+                        ,survivalFrome = NULL
+                        ,TCGA = FALSE
+                        ,TCGAfrome = "MedBioInfoCloud"
+                        ,feature = NULL
+                        ,save = FALSE
+                        ,folder = "."
+){
+  if(TCGA == TRUE & TCGAfrome == "MedBioInfoCloud"){
+    # expr <- STARdata[["tpm"]]
+    # table(expr$gene_type)
+    expr <- filterGeneTypeExpr(expr = expr
+                               ,fil_col = "gene_type"
+                               ,filter = "protein_coding"
+    )
+    expr <- splitTCGAmatrix(data = expr
+                            ,sample = "Tumor"
+    )
+  }
+  if(!is.null(feature)){
+    conFeature <- intersect(rownames(expr),feature)
+    expr <- expr[conFeature,]
+    expr <- del_dup_sample(expr,col_rename = TRUE)
+  }
+  if(survivalFrome == "UCSC2022"){
+    survival = dplyr::arrange(survival,desc(OS.time))
+    survival = survival[!duplicated(survival$X_PATIENT),]
+    rownames(survival) <- survival$X_PATIENT
+    survival <- survival[,c("X_PATIENT","OS","OS.time")]
+    colnames(survival) <- c("submitter_id","vitalStat","surTime")
+  }else if(survivalFrome == "GDCquery_clinic"){
+    colnm <- intersect(c("submitter_id","vitalStat","surTime"),colnames(survival))
+    survival <- survival[,colnm]
+    survival <- dplyr::arrange(survival,desc(surTime))
+    survival <- survival[!duplicated(survival$submitter_id),]
+    rownames(survival) <- survival$submitter_id
+  }else{
+    conSample <- intersect(colnames(expr),rownames(survival))
+    if(length(conSample)>0){
+      expr <- expr[,conSample]
+      survival <- survival[conSample,]
+      mergdata <-cbind(survival,t(expr))
+    }
+  }
+  mergdata <- na.omit(mergdata)
+  mergdata$surTime <- mergdata$surTime/Timeunit
+
+  if(save == TRUE){
+    save(mergdata,file = paste0(folder,"/mergeSurExp.Rdata"))
+    write.csv(mergdata,file = paste0(folder,"/mergeSurExp.csv"))
+  }
+  return(mergdata)
+}
+
+
