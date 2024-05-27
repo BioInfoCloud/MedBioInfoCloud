@@ -90,6 +90,7 @@ getGeneExpData.pancancer <- function(datafolder,
 #'
 #' @examples
 ggplotGenePancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   if(gene %in% data$gene){
     data <- data[data$gene == gene,]
     data$SampleType = gsub("[(].*?[)]","",data$Sample)

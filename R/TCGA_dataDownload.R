@@ -11,6 +11,7 @@
 #' @examples
 getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(
     project = project,
     data.category = "Transcriptome Profiling",
@@ -44,6 +45,7 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
 #' @examples
 getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(project = project,
                                   data.category = "Proteome Profiling",
                                   data.type = "Protein Expression Quantification")
@@ -66,6 +68,7 @@ getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
 #'
 #' @examples
 getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query_SNV <- TCGAbiolinks::GDCquery(project = project,
                        data.category = "Simple Nucleotide Variation",
                        data.type = "Masked Somatic Mutation",
@@ -90,6 +93,7 @@ getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
 #' @examples
 getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Transcriptome Profiling",
                     data.type = "Isoform Expression Quantification")
@@ -127,6 +131,7 @@ getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
 #' @examples
 getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Transcriptome Profiling",
                     data.type = "miRNA Expression Quantification")
@@ -158,6 +163,7 @@ getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
 #' @examples
 getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(project = project,
                                   data.category = "DNA Methylation",
                                   data.type = "Methylation Beta Value",
@@ -180,6 +186,7 @@ getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
 #' @importFrom purrr map2_dfr
 getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene Level Copy Number"){
   message(paste0("=====================",project," Starting====================="))
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Copy Number Variation",
                     data.type = data.type,
@@ -221,6 +228,7 @@ getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene
 #'
 #' @examples
 getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   projects <- TCGAbiolinks::getGDCprojects()$project_id
   projects <- projects[grep("TCGA-",projects)]
   proj1 <- c("TCGA-READ","TCGA-COAD","TCGA-PAAD","TCGA-ESCA","TCGA-KIRP","TCGA-HNSC",

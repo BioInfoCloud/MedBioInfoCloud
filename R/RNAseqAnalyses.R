@@ -130,8 +130,6 @@ geneDEAnalysis <- function (data, group, comparison,
       DEGAll <- topTable(fit2, coef = 1, n = Inf)
       colnames(DEGAll) <- c("logFC", "AveExpr", "t", "PValue", "FDR", "B")
     }
-
-
   }
   DEGAll$symbol <- rownames(DEGAll)
   DEGAll <- dplyr::select(DEGAll, symbol, everything())

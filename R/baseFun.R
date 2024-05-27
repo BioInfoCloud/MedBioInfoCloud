@@ -3,13 +3,15 @@
 #'
 #' @param input list or data.frame
 #' @param description NA
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param filename filepath
 #'
 #' @return
 #' @export
 #'
 #' @examples
-outputGmtFile <- function(input,description = NA,filename){
+outputGmtFile <- function(input,description = NA,folder= ".",filename){
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   if(is.data.frame(input)){
     nms <- unique(input[,1])
     ls <- lapply(nms, function(nm){
@@ -19,7 +21,7 @@ outputGmtFile <- function(input,description = NA,filename){
     input = ls
   }
   if(is.list(input)){
-    output <- file(filename, open="wt")
+    output <- file(paste0(folder,"/",filename), open="wt")
     nms <- names(input)
     lapply(1:length(nms),function(x){
       if(!is.na(description)){
@@ -29,6 +31,74 @@ outputGmtFile <- function(input,description = NA,filename){
       writeLines(outlines, con=output)
     })
     close(output)
+  }
+}
+
+
+
+#' tidy.gmt
+#'
+#' @param filepath For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param fun "stat" or "merge"
+#' @param Source For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param termName For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return data.frame
+#' @export clusterProfiler
+#'
+#' @examples
+tidy.gmt <- function(filepath
+                     ,fun = "stat"
+                     ,Source = ""
+                     ,termName=NULL
+                     ,save = TRUE
+                     ,folder = "."
+                     ,filename = "geneset"
+                     ){
+  # fl <- dir(filepath,pattern = pattern)
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
+  if(dir.exists(filepath)){
+    fp <- dir(filepath,pattern = "gmt$",full.names = T)
+  }else if(is.vector(filepath) & sum(grep("gmt$",filepath)) == length(filepath)){
+    fp <- filepath
+  }
+  stat.gs <- data.frame()
+  mergedf <- data.frame()
+  gs <- c()
+  for(x in fp){
+    ldf <- clusterProfiler::read.gmt(x)
+    mergedf <- rbind(mergedf,ldf)
+    gs <- unique(c(gs,ldf$gene))
+    df <- data.frame(term = gsub("_"," ",as.character(unique(ldf$term)))
+                     ,Source = Source
+                     ,`Gene count` = nrow(ldf)
+    )
+    stat.gs <- rbind(stat.gs,df)
+  }
+  totallgene <- data.frame(term = ""
+                           ,Source = Source
+                           ,`Gene count` = paste0(length(unique(gs)),"(unique)")
+                           )
+  stat.gs <- rbind(stat.gs,totallgene)
+  if (!is.null(termName)) {
+    colnames(stat.gs)[1] <- termName
+  }
+  if(fun == "stat"){
+    if(save == TRUE){
+      write.csv(stat.gs,file = paste0(folder,"/",filename,"-stat.csv"))
+    }
+    return(stat.gs)
+  } else if(fun == "merge"){
+    if(save == TRUE){
+      outputGmtFile(input = mergedf
+                    ,description = NA
+                    ,folder= folder
+                    ,filename = paste0(filename,"-merge.gmt"))
+    }
+    return(mergedf)
   }
 }
 

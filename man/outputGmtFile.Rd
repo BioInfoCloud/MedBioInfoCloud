@@ -4,12 +4,14 @@
 \alias{outputGmtFile}
 \title{outputGmtFile}
 \usage{
-outputGmtFile(input, description = NA, filename)
+outputGmtFile(input, description = NA, folder = ".", filename)
 }
 \arguments{
 \item{input}{list or data.frame}
 
 \item{description}{NA}
+
+\item{folder}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 
 \item{filename}{filepath}
 }

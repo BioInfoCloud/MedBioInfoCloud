@@ -11,6 +11,11 @@ BiocManager::install(DependencyPackage)
 devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 ```
 
+本包中所有函数的参数共性：
+
+save：TRUE或FALSE，表示是否保存数据，
+folder：是一个文件夹路径，当save = TRUE时，数据的输出目录，如果指定目录不存在，会自动创建，文件夹路径末尾不要添加"/"。
+
 ## 二. TCGA数据库数据挖掘相关函数
 
 TCGA数据库首页：[GDC Data Portal Homepage (cancer.gov)](https://portal.gdc.cancer.gov/)
@@ -195,7 +200,26 @@ outputGmtFile(input = genes,description = NA,filename = "./gs.gmt")
 outputGmtFile(input = cg,description = NA,filename = "./gs.gmt")
 ```
 
-### 2.融合生存数据与特征数据
+### 2.整理gmt文件
+
+tidy.gmt()用于统计或者合并多个gtf文件。filepath是文件路径，不用指定到具体文件，函数会自动匹配文件夹下所有以".gmt"格式结尾的文件，当然，filepath也可以是一个包括多个gmt格式文件完整路径的向量，比如：`c("./gs1.gmt","/home/user/data/gs2.gmt","/home/user/geneset/gs3.gmt")`；fun的值是"stat" 或 "merge"中的一个，"stat"表示统计每个gmt文件中的基因个数，并输入一个csv文件，"merge"就是合并多个基因集，会返回一个数据框（不做统计，相当于函数`clusterProfiler::read.gmt()`的读入结果），同时输出一个gmt格式文件；termName用于指定当fun = "stat" 时，所有基因集的统一名称，相当于列名，默认NULL（输入的列名是trem）；Source是所有基因集的来源，默认""，长度应该为1；filename可以不指定文件后缀名，指定后缀名，输出也会根据fun的不同而添加相应的后缀名。
+
+```R
+filepath <- "G:/publicData/base_files/GeneSet/Cytoskeleton/"
+folder <- "G:/myProject/data/geneset"
+gsdf <- tidy.gmt(filepath
+                 ,fun = "stat"
+                 ,Source = ""
+                 ,termName=NULL
+                 ,save = TRUE
+                 ,folder = folder
+                 ,filename = "geneset"
+)
+```
+
+
+
+### 3.融合生存数据与特征数据
 
 ```R
 se <- mergeSurExp(expr
@@ -273,7 +297,6 @@ MultivariateCOX()函数用于一键式构建多因素COX回归模型。
 MultivariateCOX(data
                 ,dataFrom ="mergeSurExp",
                 feature ="all"
-                ,method = "all"
                 ,train_prop = 0.8
                 ,cutoff = 0.05
                 ,save = TRUE

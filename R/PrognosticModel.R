@@ -436,6 +436,5 @@ MultivariateCOX <- function(data
     return(list(MulCox = MulCox
                 ,trainSet.result = trainSet.result
                 ,testSet.result = testSet.result))
-
   }
 }
