@@ -3,6 +3,10 @@ Functions and data relevant to the tutorials published on the WeChat official ac
 ## 一. Install package
 
 ```R
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+DependencyPackage <- c("edgeR","DESeq2","TCGAbiolinks")
+BiocManager::install(DependencyPackage)
 # install.packages("devtools")
 devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 ```
@@ -21,7 +25,7 @@ STARdata <- getTCGA_RNAseqData("TCGA-LUAD")
 
 ### 2.下载蛋白组数据
 
-getProteinExp()返回一个数据框。
+getTCGA_ProteinExp()返回一个数据框。
 
 ```R
 Proteome_data <- getTCGA_ProteinExp("TCGA-LUAD")
@@ -67,14 +71,14 @@ MetData <- getTCGA_MethylationData("TCGA-LUAD")
 
 ### 6. 下载CNV（Copy Number Variation）数据
 
-getCNV.data()函数还在优化中：
+getTCGA_CNV.data()函数还在优化中：
 
 ```R
-cnv.gl <- getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number")
+cnv.gl <- getTCGA_CNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number")
 ```
 
 ```R
-cnv.gls <-getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number Scores")
+cnv.gls <- getTCGA_CNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Level Copy Number Scores")
 ```
 
 ### 7. 下载临床数据
