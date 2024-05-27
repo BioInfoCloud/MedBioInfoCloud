@@ -32,7 +32,7 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
   return(STARdata)
 }
 
-#' getProteinExp
+#' getTCGA_ProteinExp
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
@@ -42,7 +42,7 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
 #' @export
 #'
 #' @examples
-getProteinExp <- function(project,save = FALSE,folder = "."){
+getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   query <- TCGAbiolinks::GDCquery(project = project,
                                   data.category = "Proteome Profiling",
@@ -55,7 +55,7 @@ getProteinExp <- function(project,save = FALSE,folder = "."){
   return(Proteome_data)
 }
 
-#' getSNV_Masked_data
+#' getTCGA_SNV_Masked_data
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
@@ -65,7 +65,7 @@ getProteinExp <- function(project,save = FALSE,folder = "."){
 #' @export
 #'
 #' @examples
-getSNV_Masked_data <- function(project,save = FALSE,folder = "."){
+getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
   query_SNV <- TCGAbiolinks::GDCquery(project = project,
                        data.category = "Simple Nucleotide Variation",
                        data.type = "Masked Somatic Mutation",
@@ -78,7 +78,7 @@ getSNV_Masked_data <- function(project,save = FALSE,folder = "."){
   return(snv)
 }
 
-#' get_miRNA_IsoformEQ
+#' getTCGA_miRNA_IsoformEQ
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
@@ -88,7 +88,7 @@ getSNV_Masked_data <- function(project,save = FALSE,folder = "."){
 #' @export
 #'
 #' @examples
-get_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
+getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Transcriptome Profiling",
@@ -115,7 +115,7 @@ get_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
   return(miRNA_data)
 }
 
-#' get_miRNAEQ
+#' getTCGA_miRNAEQ
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
@@ -125,7 +125,7 @@ get_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
 #' @export
 #'
 #' @examples
-get_miRNAEQ <- function(project,save = FALSE,folder = "."){
+getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Transcriptome Profiling",
@@ -146,7 +146,7 @@ get_miRNAEQ <- function(project,save = FALSE,folder = "."){
 }
 
 
-#' getMetData
+#' getTCGA_MethylationData
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
@@ -156,7 +156,7 @@ get_miRNAEQ <- function(project,save = FALSE,folder = "."){
 #' @export
 #'
 #' @examples
-getMetData <- function(project,save = FALSE,folder = "."){
+getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   query <- TCGAbiolinks::GDCquery(project = project,
                                   data.category = "DNA Methylation",
@@ -171,9 +171,14 @@ getMetData <- function(project,save = FALSE,folder = "."){
   }
   return(MetData)
 }
-
+#' getTCGA_CNV.data
+#' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
+#' @param save TRUE or FALSE
+#' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
+#' @param data.type "Gene Level Copy Number" or "Gene Level Copy Number Scores"
+#'
 #' @importFrom purrr map2_dfr
-getCNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene Level Copy Number"){
+getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene Level Copy Number"){
   message(paste0("=====================",project," Starting====================="))
   query <- TCGAbiolinks::GDCquery(project = project,
                     data.category = "Copy Number Variation",
@@ -204,26 +209,26 @@ getCNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene Leve
   return(data)
 }
 
-#' getClinicalData
+#' getTCGA_ClinicalData
 #'
 #' @param project A list of valid project (see list with TCGAbiolinks:::getGDCprojects()$project_id)]
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #' @param trim TRUE or FALSE
 #'
-#' @return
+#' @return A data.frame
 #' @export
 #'
 #' @examples
-getClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
-  projects <- getGDCprojects()$project_id
+getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
+  projects <- TCGAbiolinks::getGDCprojects()$project_id
   projects <- projects[grep("TCGA-",projects)]
   proj1 <- c("TCGA-READ","TCGA-COAD","TCGA-PAAD","TCGA-ESCA","TCGA-KIRP","TCGA-HNSC",
              "TCGA-BLCA","TCGA-STAD","TCGA-CHOL","TCGA-SKCM","TCGA-LUAD","TCGA-LIHC",
              "TCGA-KIRC","TCGA-KICH","TCGA-MESO","TCGA-LUSC","TCGA-GBM","TCGA-UVM",
              "TCGA-BRCA","TCGA-TGCT","TCGA-THCA")
   proj2 <- setdiff(projects,proj1)
-  allInfo_clindata <- GDCquery_clinic(project, type = "clinical", save.csv = F)
+  allInfo_clindata <- TCGAbiolinks::GDCquery_clinic(project, type = "clinical", save.csv = F)
   if(trim == TRUE){
     if(project %in% sub_proj){
       processed_clindata <- allInfo_clindata[,c("submitter_id","gender",

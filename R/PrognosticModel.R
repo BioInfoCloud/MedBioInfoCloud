@@ -346,10 +346,25 @@ MultivariateCOX.verify <- function(dataset,MulCox.sigFactors,coef){
               ))
 }
 
+
+
+#' MultivariateCOX
+#'
+#' @param data For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param dataFrom For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param feature For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param train_prop For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param cutoff For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @export
+#'
+#' @examples
 MultivariateCOX <- function(data
                             ,dataFrom ="mergeSurExp",
                             feature ="all"
-                            ,method = "all"
                             ,train_prop = 0.8
                             ,cutoff = 0.05
                             ,save = TRUE

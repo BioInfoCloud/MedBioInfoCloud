@@ -257,6 +257,22 @@ fs <- featureSelect.baseSur(data
                             ,folder = ".")
 ```
 
-data是一个数据框，列应该包括生存数据和特性，行为样本。如果数据来源mergeSurExp()函数，前3列的列名应该如下图所示，并且需要指定dataFrom = "mergeSurExp"，如果是自己整理的数据，第一列的列名可以随意，但第2列（生存状态）和第3列（生存时间）的列名必须与图中相同。如果没有第一列，将设置dataFrom = NULL。feature，表示要进行分析的特征，默认是所有特征（下图中除了前3列）；method的值有lasso、cox、randomForest，单独设置这3个值时，函数返回一个向量（即筛选出的特征），method="all"时，3种方法都执行，最后返回一个list，包括3种方法的结果。cutoff只有当method="cox"或method="all"时被使用。
+data是一个数据框，列应该包括生存数据和特征，行为样本。如果数据来源mergeSurExp()函数，前3列的列名应该如下图所示，并且需要指定dataFrom = "mergeSurExp"，如果是自己整理的数据，第一列的列名可以随意，但第2列（生存状态）和第3列（生存时间）的列名必须与图中相同。如果没有第一列，将设置dataFrom = NULL。feature，表示要进行分析的特征，默认是所有特征（下图中除了前3列）；method的值有lasso、cox、randomForest，单独设置这3个值时，函数返回一个向量（即筛选出的特征），method="all"时，3种方法都执行，最后返回一个list，包括3种方法的结果。cutoff只有当method="cox"或method="all"时被使用。
 
 ![](https://raw.githubusercontent.com/BioInfoCloud/ImageGo/main/20240526115531.png)
+
+### 2.多因素COX回归模型
+
+MultivariateCOX()函数用于一键式构建多因素COX回归模型。
+
+```R
+MultivariateCOX(data
+                ,dataFrom ="mergeSurExp",
+                feature ="all"
+                ,method = "all"
+                ,train_prop = 0.8
+                ,cutoff = 0.05
+                ,save = TRUE
+                ,folder = ".")
+```
+
