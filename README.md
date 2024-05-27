@@ -24,7 +24,7 @@ STARdata <- getTCGA_RNAseqData("TCGA-LUAD")
 getProteinExp()返回一个数据框。
 
 ```R
-Proteome_data <- getProteinExp("TCGA-LUAD")
+Proteome_data <- getTCGA_ProteinExp("TCGA-LUAD")
 ```
 
 ### 3.下载SNV（simple nucleotide variation）数据
@@ -32,7 +32,7 @@ Proteome_data <- getProteinExp("TCGA-LUAD")
 数据类型为：Masked Somatic Mutation。
 
 ```R
-snv.dat <- getSNV_Masked_data("TCGA-LUAD")
+snv.dat <- getTCGA_SNV_Masked_data("TCGA-LUAD")
 ```
 
 ### 4.下载miRNA数据
@@ -48,21 +48,21 @@ snv.dat <- getSNV_Masked_data("TCGA-LUAD")
 #### （1）Isoform Expression Quantification
 
 ```R
-IsoformEQ <- get_miRNA_IsoformEQ("TCGA-LUAD")
+IsoformEQ <- getTCGA_miRNA_IsoformEQ("TCGA-LUAD")
 ```
 
 #### （2）miRNA Expression Quantification
 
 ```R
-miRNAEQ <- get_miRNAEQ("TCGA-LUAD")
+miRNAEQ <- getTCGA_miRNAEQ("TCGA-LUAD")
 ```
 
 ### 5.下载甲基化数据
 
-getMetData下载Methylation Beta Value数据。
+getTCGA_MethylationData 下载Methylation Beta Value数据。
 
 ```R
-MetData <- getMetData("TCGA-LUAD")
+MetData <- getTCGA_MethylationData("TCGA-LUAD")
 ```
 
 ### 6. 下载CNV（Copy Number Variation）数据
