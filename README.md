@@ -95,7 +95,7 @@ c("TCGA-READ","TCGA-COAD","TCGA-PAAD","TCGA-ESCA","TCGA-KIRP","TCGA-HNSC",
 由于每种癌症类型的临床信息有差异，其他癌症类型，获取临床数据可能会报错，可以通过指定getClinicalData()中的trim = FALSE，返回原始未整理过的数据。
 
 ```R
-cldat <- getClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = FALSE)
+cldat <- getTCGA_ClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = FALSE)
 ```
 
 ### 8. 过滤表达数据
