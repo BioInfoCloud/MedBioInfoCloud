@@ -80,7 +80,7 @@ cnv.gls <-getCNV.data("TCGA-LUAD",save = FALSE,folder = ".",data.type = "Gene Le
 ### 7. 下载临床数据
 
 ```R
-cldat <- getClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = TRUE)
+cldat <- getTCGA_ClinicalData(project = "TCGA-LUAD",save = FALSE,folder = ".",trim = TRUE)
 ```
 
 针对的癌症类型：
