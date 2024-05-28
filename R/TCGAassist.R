@@ -187,7 +187,7 @@ Met450prepare <- function(query){
 #' @export
 #'
 #' @examples
-del_dup_sample <- function(data,col_rename =T){
+delTCGA_dup_sample <- function(data,col_rename =T){
   data <- data[,sort(colnames(data))]
   pid = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
   reps = pid[duplicated(pid)]##重复样本
@@ -376,7 +376,7 @@ mergeSurExp <- function(expr
   if(!is.null(feature)){
     conFeature <- intersect(rownames(expr),feature)
     expr <- expr[conFeature,]
-    expr <- del_dup_sample(expr,col_rename = TRUE)
+    expr <- MedBioInfoCloud::delTCGA_dup_sample(expr,col_rename = TRUE)
   }
   if(survivalFrome == "UCSC2022"){
     survival = dplyr::arrange(survival,desc(OS.time))

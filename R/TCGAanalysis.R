@@ -43,8 +43,8 @@ getGeneExpData.pancancer <- function(datafolder,
           if(ncol(norexp) >= nnorm){
             if(paired){
               # 配对样本
-              turexp <- MedBioInfoCloud::del_dup_sample(turexp)
-              norexp <- MedBioInfoCloud::del_dup_sample(norexp)
+              turexp <- MedBioInfoCloud::delTCGA_dup_sample (turexp)
+              norexp <- MedBioInfoCloud::delTCGA_dup_sample (norexp)
               concol <- intersect(colnames(turexp),colnames(norexp))
               if(length(concol) >= 2){
                 turexp <- turexp[,concol]
