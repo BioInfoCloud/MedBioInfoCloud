@@ -1,39 +1,3 @@
-#' Counts2TPM
-#'
-#' @param counts a data.frame or matrix for raw count of RNAseq.
-#' @param effLen The length of genes.
-#'
-#' @return a data.frame
-#' @export
-#'
-Counts2TPM <- function(counts, effLen){
-  rate <- log(counts) - log(effLen)
-  denom <- log(sum(exp(rate)))
-  exp(rate - denom + log(1e6))
-}
-#' Counts2FPKM
-#'
-#' @param counts a data.frame or matrix for raw count of RNAseq.
-#' @param effLen The length of genes.
-#'
-#' @return a data.frame
-#' @export
-#'
-Counts2FPKM <- function(counts, effLen){
-  N <- sum(counts)
-  exp( log(counts) + log(1e9) - log(effLen) - log(N) )
-}
-#' FPKM2TPM
-#'
-#' @param fpkm a data.frame or matrix for fpkm of RNAseq.
-#'
-#' @return a data.frame
-#' @export
-#'
-FPKM2TPM <- function(fpkm){
-  exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
-}
-
 
 #' RNAseqDataTrans
 #'

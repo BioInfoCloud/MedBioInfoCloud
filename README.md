@@ -13,8 +13,10 @@ devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 
 The common parameters for all functions in this package are:
 
-**save** - A boolean value that determines whether the data should be preserved. If `save` is set to `TRUE`, the data will be securely stored. Conversely, if it's set to `FALSE`, the data will remain unsaved.
+**save** - A boolean value that determines whether the data should be preserved. If `save` is set to `TRUE`, the data will be  saved. Conversely, if it's set to `FALSE`, the data will unsaved.
 
 **folder** - A string that designates the destination directory for the saved data. This parameter is applicable only when `save` is set to `TRUE`. If the specified directory does not exist, it will be automatically created. Kindly note that the folder path should not terminate with a slash ("/").
 
 For more learning materials, please refer to [MedBioInfoCloud - 生物信息云](https://bioinfocloud.github.io/note/WeChatOfficialAccount/MedBioInfoCloud/).
+
+======================================================

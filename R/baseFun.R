@@ -1,4 +1,158 @@
 
+#' getGeneLenFromeGTF
+#'
+#' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
+#'
+#' @return data.frame
+#' @export GenomicFeatures,GenomicRanges
+#'
+#' @examples
+getGeneLenFromeGTF <- function(gtf){
+  # reference 1: https://mp.weixin.qq.com/s/dwbpJ0nhzyIp9fDv7fEWEQ
+  # reference 2: https://mp.weixin.qq.com/s/lazavD3jzRVO4QkxysHQcg
+  # 加载必要的包
+  # library(GenomicFeatures)
+  # library(GenomicRanges)
+  txdb <- GenomicFeatures::makeTxDbFromGFF(gtf,format="gtf")
+  exons.list.per.gene <- GenomicFeatures::exonsBy(txdb, by = "gene")
+  exonic.gene.sizes <- lapply(exons.list.per.gene,
+                              function(x){sum(GenomicRanges::width(GenomicRanges::reduce(x)))})
+  eff_length <- do.call(rbind,lapply(exonic.gene.sizes, data.frame))
+  eff_length <- data.frame(Ensembl = do.call(rbind,strsplit(rownames(eff_length),'\\.'))[,1],
+                           effLen = eff_length[,1])
+  return(eff_length)
+}
+
+
+#' getGeneTypeInfoFromeGTF
+#'
+#' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
+#'
+#' @return data.frame
+#' @export data.table
+#'
+#' @examples
+getGeneTypeInfoFromeGTF <- function(gtf){
+  if (is.character(gtf)) {
+    if(!file.exists(gtf)) stop("Bad gtf file.")
+    message("Treat gtf as file")
+    gtf = data.table::fread(gtf, header = FALSE)
+  } else {
+    data.table::setDT(gtf)
+  }
+  gtf = gtf[gtf[[3]] == "gene", ]
+  pattern_id = ".*gene_id \"([^;]+)\";.*"
+  pattern_name = ".*gene_name \"([^;]+)\";.*"
+  pattern_type = ".*gene_type \"([^;]+)\";.*"
+  gene_id = sub(pattern_id, "\\1", gtf[[9]])
+  gene_id = do.call(rbind,strsplit(gene_id,'\\.'))[,1]
+  gene_name = sub(pattern_name, "\\1", gtf[[9]])
+  gene_type = sub(pattern_type, "\\1", gtf[[9]])
+
+  EnsemblTOGenename <- data.frame(Ensembl = gene_id,
+                                  Symbol = gene_name,
+                                  gene_type = gene_type,
+                                  stringsAsFactors = FALSE)
+  return(EnsemblTOGenename)
+}
+
+#' getGeneBaseInfo
+#'
+#' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
+#'
+#' @return data.frame
+#' @export data.table,GenomicFeatures,GenomicRanges
+#'
+#' @examples
+getGeneBaseInfo <- function(gtf){
+  ens2symInfo <- getGeneInfoFromeGTF(gtf)
+  eff_length <- getGeneLenFromeGTF(gtf)
+  GeneInfo <- merge(ens2symInfo,eff_length,by = "Ensembl")
+  return(GeneInfo)
+}
+
+#' RNAseqDataConversion
+#'
+#' @param data RNAseq expression data, either a matrix or a data frame
+#' @param type must be one of "Counts2TPM", "Counts2FPKM", or "FPKM2TPM"
+#' @param species must be one of "homo", "mus", or NULL.
+#' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
+#'
+#' @return either a matrix or a data frame
+#' @export dplyr
+#'
+#' @examples
+RNAseqDataConversion <- function(data,type,species = "homo",gtf){
+  if(type %in% c("Counts2TPM","Counts2FPKM","FPKM2TPM")){
+    if(type == "FPKM2TPM"){
+      return(FPKM2TPM(data))
+    }else if(is.null(species) & file.exists(gtf)){
+      ano <- getGeneBaseInfo(gtf)
+    }else if(species == "homo"){
+      ano <- MedBioInfoCloud::hsaGeneInfo
+    }else if(species == "mus"){
+      ano <- MedBioInfoCloud::musGeneInfo
+    }
+    ano <- dplyr::arrange(ano,Symbol,desc(effLen))
+    ano <- ano[!duplicated(ano$Symbol),]
+    rownames(ano) <- ano$Symbol
+    congene <- intersect(rownames(data),rownames(ano))
+    if(!is.numeric(congene)){
+      ano <- ano[congene,]
+      data <- data[congene,]
+      if(type == "Counts2TPM"){
+        return(Counts2TPM(counts = data,effLen = ano$effLen))
+      }else if(type == "Counts2FPKM"){
+        return(Counts2FPKM(counts = data,effLen = ano$effLen))
+      }
+    }else{message("Gene annotation information does not match the row names of the data.")}
+
+  }
+}
+
+
+
+
+#' Counts2TPM
+#'
+#' @param counts a data.frame or matrix for raw count of RNAseq.
+#' @param effLen The length of genes.
+#'
+#' @return a data.frame
+#' @export
+#'
+Counts2TPM <- function(counts, effLen){
+  rate <- log(counts) - log(effLen)
+  denom <- log(sum(exp(rate)))
+  return(exp(rate - denom + log(1e6)))
+}
+#' Counts2FPKM
+#'
+#' @param counts a data.frame or matrix for raw count of RNAseq.
+#' @param effLen The length of genes.
+#'
+#' @return a data.frame
+#' @export
+#'
+Counts2FPKM <- function(counts, effLen){
+  N <- sum(counts)
+  exp( log(counts) + log(1e9) - log(effLen) - log(N) )
+}
+#' FPKM2TPM
+#'
+#' @param fpkm a data.frame or matrix for fpkm of RNAseq.
+#'
+#' @return a data.frame
+#' @export
+#'
+FPKM2TPM <- function(fpkm){
+  exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
+}
+
+
+
+
+
 #' outputGmtFile
 #'
 #' @param input list or data.frame
@@ -186,6 +340,5 @@ tidyGene.fromeReactome <- function(filepath
     }
     return(mergedf)
   }
-
 }
 
