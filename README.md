@@ -11,7 +11,7 @@ BiocManager::install(DependencyPackage)
 devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 ```
 
-The common parameters for all functions in this package are:
+Some functions with the same parameters are uniformly explained as follows:
 
 **save** - A boolean value that determines whether the data should be preserved. If `save` is set to `TRUE`, the data will be  saved. Conversely, if it's set to `FALSE`, the data will unsaved.
 
@@ -19,4 +19,4 @@ The common parameters for all functions in this package are:
 
 For more learning materials, please refer to [MedBioInfoCloud - 生物信息云](https://bioinfocloud.github.io/note/WeChatOfficialAccount/MedBioInfoCloud/).
 
-======================================================
+=============================================================================
