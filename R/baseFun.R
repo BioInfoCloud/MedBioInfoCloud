@@ -88,6 +88,91 @@ tidy.gmt <- function(filepath
   }
   if(fun == "stat"){
     if(save == TRUE){
+      writeLines(unique(gs),con = paste0(folder,"/",filename,"-stat.unique.txt"))
+      write.csv(stat.gs,file = paste0(folder,"/",filename,"-stat.csv"))
+    }
+    return(stat.gs)
+  } else if(fun == "merge"){
+    if(save == TRUE){
+      writeLines(unique(gs),con = paste0(folder,"/",filename,"-merge.unique.txt"))
+      outputGmtFile(input = mergedf
+                    ,description = NA
+                    ,folder= folder
+                    ,filename = paste0(filename,"-merge.gmt"))
+    }
+    return(mergedf)
+  }
+}
+
+
+#' tidyGene.fromeReactome
+#'
+#' @param filepath For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param fun For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param Source For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param termName For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return data.frame
+#' @export stringr
+#'
+#' @examples
+tidyGene.fromeReactome <- function(filepath
+                                   ,fun = "stat"
+                                   ,Source = "Reactome"
+                                   ,termName=NULL
+                                   ,save = TRUE
+                                   ,folder = "."
+                                   ,filename = "geneset"){
+  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
+  if(dir.exists(filepath)){
+    fp <- dir(filepath,pattern = "tsv$",full.names = T)
+  }else if(is.vector(filepath) & sum(grep("tsv$",filepath)) == length(filepath)){
+    fp <- filepath
+  }
+  stat.gs <- data.frame()
+  mergedf <- data.frame()
+  gs <- c()
+  for(x in fp){
+    if(Source == "Reactome"){
+      rc <- read.csv(x,header = T,sep = "\t")[,c("MoleculeType","MoleculeName")]
+      rc <- tidyr::separate(rc,MoleculeName,c("UniProt","gene")," ")
+      rc <- rc[rc$MoleculeType == "Proteins",]
+      rc <- rc[!duplicated(rc$gene),]
+      filenm <- unlist(strsplit(x,"/"))
+      filenm <- filenm[length(filenm)]
+      # 提取[号前的内容
+      # str_extract(filenm, "^[^\\[]+")
+      term = stringr::str_extract(filenm,"^[^\\[]*")
+      PathwayID = stringr::str_extract(filenm, "(?<=\\[)[^\\]]+")
+    }else{
+      message("开发中")
+    }
+    gs <- c(gs,rc$gene)
+    statdf <- data.frame(term = term
+                         ,Source = Source
+                         ,PathwayID = PathwayID
+                         ,`Gene count` = nrow(rc))
+    stat.gs <- rbind(stat.gs,statdf)
+    gmtdf <- data.frame(term = rep(term,nrow(rc))
+                        ,gene = rc$gene)
+    mergedf <- rbind(mergedf,gmtdf)
+  }
+  totallgene <- data.frame(term = ""
+                           ,Source = ""
+                           ,PathwayID =""
+                           ,`Gene count` = paste0(length(unique(gs)),"(unique)")
+  )
+  stat.gs <- rbind(stat.gs,totallgene)
+  if (!is.null(termName)) {
+    colnames(stat.gs)[1] <- termName
+  }
+
+  if(fun == "stat"){
+    if(save == TRUE){
+      writeLines(unique(gs),con = paste0(folder,"/",filename,"-stat.unique.txt"))
       write.csv(stat.gs,file = paste0(folder,"/",filename,"-stat.csv"))
     }
     return(stat.gs)
@@ -97,8 +182,10 @@ tidy.gmt <- function(filepath
                     ,description = NA
                     ,folder= folder
                     ,filename = paste0(filename,"-merge.gmt"))
+      writeLines(unique(gs),con = paste0(folder,"/",filename,"-merge.unique.txt"))
     }
     return(mergedf)
   }
+
 }
 
