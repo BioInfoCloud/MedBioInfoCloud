@@ -2,12 +2,16 @@ Functions and data relevant to the tutorials published on the WeChat official ac
 
 ## Install package
 
+This R package has dependencies on several other packages in order to function properly. If you encounter errors during the installation process, it is typically because the required dependencies have not been properly installed. Please install the dependencies individually before proceeding with the installation of the R package.
+
 ```R
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-DependencyPackage <- c("edgeR","DESeq2","TCGAbiolinks")
-BiocManager::install(DependencyPackage)
-# install.packages("devtools")
+if (!requireNamespace("BiocManager", quietly = TRUE))  
+    install.packages("BiocManager")  
+DependencyPackage <- c("edgeR", "DESeq2", "TCGAbiolinks")  
+BiocManager::install(DependencyPackage)  
+   
+if (!requireNamespace("devtools", quietly = TRUE))  
+    install.packages("devtools")  
 devtools::install_github("BioInfoCloud/MedBioInfoCloud")
 ```
 
@@ -20,3 +24,4 @@ Some functions with the same parameters are uniformly explained as follows:
 For more learning materials, please refer to [MedBioInfoCloud - 生物信息云](https://bioinfocloud.github.io/note/WeChatOfficialAccount/MedBioInfoCloud/).
 
 =============================================================================
+
