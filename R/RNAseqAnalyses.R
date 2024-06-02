@@ -6,10 +6,9 @@
 #' @param species 'hsa' or 'mus'
 #' @param gtype 'Ensemble' or 'Symbol'
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export dplyr
 #'
-#' @examples
 RNAseqDataTrans <- function(data,tfun,species,gtype){
   if(!(species %in% c("hsa","mus"))){
     message("The value of species should be 'hsa' or 'mus'")
@@ -50,7 +49,7 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 #' @param filter TRUE or FALSE
 #'
 #' @return A data.frame
-#' @export
+#' @export limma,DESeq2,edgeR
 #'
 #' @examples
 geneDEAnalysis <- function (data, group, comparison,

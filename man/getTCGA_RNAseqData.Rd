@@ -13,6 +13,9 @@ getTCGA_RNAseqData(project, save = FALSE, folder = ".")
 
 \item{folder}{The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.}
 }
+\value{
+a list
+}
 \description{
 getTCGA_RNAseqData
 }

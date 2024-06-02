@@ -1,5 +1,4 @@
 
-###用于读入TCGA数据库miRNA数据(Isoform Expression Quantification)
 #' dlTCGAmiRNAdata
 #'
 #' @param data data is a data frame where the first column represents the names of miRNAs, the second column contains the corresponding values, and the third column is the barcode.

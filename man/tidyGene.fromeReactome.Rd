@@ -8,6 +8,7 @@ tidyGene.fromeReactome(
   filepath,
   fun = "stat",
   Source = "Reactome",
+  addTotal = TRUE,
   termName = NULL,
   save = TRUE,
   folder = ".",

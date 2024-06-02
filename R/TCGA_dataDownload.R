@@ -5,10 +5,9 @@
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
-#' @return
-#' @export
+#' @return a list
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -40,9 +39,8 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -63,10 +61,9 @@ getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   query_SNV <- TCGAbiolinks::GDCquery(project = project,
@@ -87,10 +84,9 @@ getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -125,10 +121,9 @@ getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -157,10 +152,9 @@ getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
 #' @param save TRUE or FALSE
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -224,9 +218,8 @@ getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene
 #' @param trim TRUE or FALSE
 #'
 #' @return A data.frame
-#' @export
+#' @export TCGAbiolinks
 #'
-#' @examples
 getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   projects <- TCGAbiolinks::getGDCprojects()$project_id

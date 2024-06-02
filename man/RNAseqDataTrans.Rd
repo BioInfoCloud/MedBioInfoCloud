@@ -15,6 +15,9 @@ RNAseqDataTrans(data, tfun, species, gtype)
 
 \item{gtype}{'Ensemble' or 'Symbol'}
 }
+\value{
+data.frame
+}
 \description{
 RNAseqDataTrans
 }

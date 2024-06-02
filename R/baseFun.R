@@ -188,6 +188,26 @@ outputGmtFile <- function(input,description = NA,folder= ".",filename){
   }
 }
 
+geneset2gmt <- function(geneset,genesetname,description = NA,return = "data.frame",folder= ".",filename){
+  if(grep(".txt$",geneset) & file.exists(geneset)){
+    geneset <- readLines(geneset)
+  }
+  if(is.vector(geneset)){
+    input <- list(geneset = geneset)
+    names(input) <- genesetname
+  }
+  if(exists("input") & grep("gmt$",filename)){
+    outputGmtFile(input = input,description = description,folder,filename = filename)
+    if(return == "data.frame"){
+      gs <- clusterProfiler::read.gmt(paste0(folder,"/",filename))
+    }else if(return == "GeneSetCollection"){
+      gs <- GSEABase::getGmt(paste0(folder,"/",filename))
+    }
+    return(gs)
+  }else{stop("Error:geneset or filename")}
+}
+
+
 
 
 #' tidy.gmt
@@ -196,6 +216,7 @@ outputGmtFile <- function(input,description = NA,folder= ".",filename){
 #' @param fun "stat" or "merge"
 #' @param Source For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param termName For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param addTotal For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
@@ -208,6 +229,7 @@ tidy.gmt <- function(filepath
                      ,fun = "stat"
                      ,Source = ""
                      ,termName=NULL
+                     ,addTotal = FALSE
                      ,save = TRUE
                      ,folder = "."
                      ,filename = "geneset"
@@ -253,10 +275,25 @@ tidy.gmt <- function(filepath
                     ,description = NA
                     ,folder= folder
                     ,filename = paste0(filename,"-merge.gmt"))
+      if(addTotal == TRUE){
+
+        addmergedf <- data.frame(term = ifelse(is.null(termName),"Total gene",termName)
+                                    ,gene = unique(gs))
+        mergedf <- rbind(mergedf,addmergedf)
+        outputGmtFile(input = mergedf
+                      ,description = NA
+                      ,folder= folder
+                      ,filename = paste0(filename,"-add-unique.gmt"))
+      }
     }
     return(mergedf)
   }
 }
+# tidy.gmt(filepath = "G:/publicData/base_files/GeneSet/Cytoskeleton",
+#          fun = "merge",
+#          folder = "G:/myProject/Cytoskeleton/data/geneset")
+
+
 
 
 #' tidyGene.fromeReactome
@@ -276,6 +313,7 @@ tidy.gmt <- function(filepath
 tidyGene.fromeReactome <- function(filepath
                                    ,fun = "stat"
                                    ,Source = "Reactome"
+                                   ,addTotal = TRUE
                                    ,termName=NULL
                                    ,save = TRUE
                                    ,folder = "."
@@ -337,8 +375,63 @@ tidyGene.fromeReactome <- function(filepath
                     ,folder= folder
                     ,filename = paste0(filename,"-merge.gmt"))
       writeLines(unique(gs),con = paste0(folder,"/",filename,"-merge.unique.txt"))
+      if(addTotal == TRUE){
+        addmergedf <- data.frame(term = ifelse(is.null(termName),"Total gene",termName)
+                                 ,gene = unique(gs))
+        mergedf <- rbind(mergedf,addmergedf)
+        outputGmtFile(input = mergedf
+                      ,description = NA
+                      ,folder= folder
+                      ,filename = paste0(filename,"-add-unique.gmt"))
+      }
     }
     return(mergedf)
   }
 }
+
+#' read.gmt.to.getGmt
+#'
+#' @param genesetdf The result of the read.gmt() function
+#'
+#' @return GeneSetCollection object.
+#' @export GSEABase,read.gmt.to.getGmt
+#'
+#' @examples
+read.gmt.to.getGmt <- function(genesetdf){
+  # 首先，按照 term 分组
+  gene_sets_list <- split(genesetdf$gene, genesetdf$term)
+  # 创建 GeneSet 对象列表，过滤掉空字符串
+  gene_sets <- lapply(names(gene_sets_list), function(term) {
+    genes <- gene_sets_list[[term]]
+    genes <- genes[genes != ""]  # 去掉空字符串
+    GeneSet(
+      geneIds = genes,
+      setName = term,
+      setIdentifier = term
+    )
+  })
+  # 创建 GeneSetCollection 对象
+  gsc <- GeneSetCollection(gene_sets)
+  return(gsc)
+}
+
+
+#' GeneSetCollection.to.df
+#'
+#' @param GeneSetCollection GeneSetCollection object.
+#'
+#' @return data.frame
+#' @export GeneSetCollection.to.df
+#'
+#' @examples
+GeneSetCollection.to.df <- function(GeneSetCollection){
+  genesetname <- names(GeneSetCollection)
+  geneset = lapply(genesetname, function(x){
+    data.frame(term = x,gene = GeneSetCollection[[x]]@geneIds)
+  })
+  geneset <- do.call(rbind,geneset)
+  return(geneset)
+}
+
+
 

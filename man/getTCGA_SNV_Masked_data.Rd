@@ -13,6 +13,9 @@ getTCGA_SNV_Masked_data(project, save = FALSE, folder = ".")
 
 \item{folder}{The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.}
 }
+\value{
+data.frame
+}
 \description{
 getTCGA_SNV_Masked_data
 }

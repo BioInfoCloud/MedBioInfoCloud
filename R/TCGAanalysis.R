@@ -9,7 +9,7 @@
 #' @param nnorm indicates the minimum number of normal samples that must be included.
 #'
 #' @return a data.frame
-#' @export
+#' @export TCGAbiolinks
 #'
 #' @examples
 getGeneExpData.pancancer <- function(datafolder,
@@ -86,7 +86,7 @@ getGeneExpData.pancancer <- function(datafolder,
 #' @param paired indicates whether the data consists of paired samples.
 #'
 #' @return ggolot object.
-#' @export
+#' @export ggplot2,TCGAbiolinks,ggpubr
 #'
 #' @examples
 ggplotGenePancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){

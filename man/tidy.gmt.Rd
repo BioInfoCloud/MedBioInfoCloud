@@ -9,6 +9,7 @@ tidy.gmt(
   fun = "stat",
   Source = "",
   termName = NULL,
+  addTotal = FALSE,
   save = TRUE,
   folder = ".",
   filename = "geneset"
@@ -22,6 +23,8 @@ tidy.gmt(
 \item{Source}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 
 \item{termName}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+
+\item{addTotal}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 
 \item{save}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 
