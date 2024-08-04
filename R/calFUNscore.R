@@ -30,7 +30,7 @@ calFUNscore <- function(expr,
                         study.type = NULL,
                         num.rounds = 1000,
                         n.bins = 50,
-                        b.sign.num = 5,
+                        b.sign.num = 1,# 5
                         seed = TRUE){
   options(warn = -1)
   if(is.null(study.type)){stop("please set your study types as 'scRNAseq' or 'bulk_RNAseq'")}

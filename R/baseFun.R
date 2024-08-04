@@ -189,8 +189,10 @@ outputGmtFile <- function(input,description = NA,folder= ".",filename){
 }
 
 geneset2gmt <- function(geneset,genesetname,description = NA,return = "data.frame",folder= ".",filename){
-  if(grep(".txt$",geneset) & file.exists(geneset)){
-    geneset <- readLines(geneset)
+  if(length(geneset) == 1 ){
+    if(grep(".txt$",geneset) & file.exists(geneset)){
+      geneset <- readLines(geneset)
+    }
   }
   if(is.vector(geneset)){
     input <- list(geneset = geneset)
@@ -206,8 +208,6 @@ geneset2gmt <- function(geneset,genesetname,description = NA,return = "data.fram
     return(gs)
   }else{stop("Error:geneset or filename")}
 }
-
-
 
 
 #' tidy.gmt

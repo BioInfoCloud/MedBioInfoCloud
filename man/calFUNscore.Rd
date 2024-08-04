@@ -10,7 +10,7 @@ calFUNscore(
   study.type = NULL,
   num.rounds = 1000,
   n.bins = 50,
-  b.sign.num = 5,
+  b.sign.num = 1,
   seed = TRUE
 )
 }

@@ -407,4 +407,97 @@ mergeSurExp <- function(expr
   return(mergdata)
 }
 
+#' getInfiltDataOfTCGAsample
+#'
+#' @param expr For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param idtype For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param datatype For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param TIMER2 For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param method For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @export
+#'
+getInfiltDataOfTCGAsample <- function(expr,
+                                      idtype = "barcode",
+                                      datatype = "tumor",
+                                      TIMER2,
+                                      method){
+  if(is.data.frame(immdata)){
+    immdata = TIMER2
+  }else if(file.exists(TIMER2)){
+    immdata = read.csv(TIMER2,header = T,row.names = 1,check.names = F)
+  }
+  else{stop("The TIMER2 parameter should be the path to the immune-infiltrating data file downloaded from the TIMER2 database or a data.frame that has been read into the file.")}
 
+  if(method %in% c("TIMER","CIBERSORT","CIBERSORT-ABS",
+                   "QUANTISEQ","MCPCOUNTER","XCELL","EPIC")){
+    method.immdata <- immdata[,colnames(immdata)[grep(method,colnames(immdata))]]
+    colnames(method.immdata) <- gsub(paste0("_",method),"",colnames(method.immdata))
+
+    process_data <- function(data, sort) {
+      # 排序行
+      if (sort == "row") {
+        data <- data[sort(rownames(data)), ]
+        id = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",rownames(data))
+        data = data[!duplicated(id),]
+        rownames(data) =  gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",rownames(data))
+      }else if(sort == "column"){
+        data = data[ ,sort(colnames(data))]
+        id = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
+        data = data[,!duplicated(id)]
+        colnames(data) =  gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
+      }
+      return(data)
+    }
+
+    # expr
+    expr.nor.id = TCGAbiolinks::TCGAquery_SampleTypes(barcode = colnames(expr),
+                                                      typesample = c("NT","NB","NBC","NEBV","NBM"))
+    tur.expr = expr[,setdiff(colnames(expr),expr.nor.id)]
+    if(length(expr.nor.id) > 1){
+      nor.expr = expr[,expr.nor.id]
+    }else if(datatype == "normal"){stop("expr should contain at least 2 normal samples.")}
+
+    # normal
+    nor.method.immdata = method.immdata[TCGAbiolinks::TCGAquery_SampleTypes(barcode = rownames(method.immdata),
+                                                                            typesample = c("NT","NB","NBC","NEBV","NBM")),]
+
+    # tumor
+    tur.method.immdata = method.immdata[setdiff(rownames(method.immdata),rownames(nor.method.immdata)),]
+
+    if(idtype == "barcode" ){
+      if(nchar(colnames(expr)[1])>=15){
+        colnames(tur.expr) = sub("^(.{15}).*", "\\1", colnames(tur.expr))
+        if(length(expr.nor.id) > 1){
+          colnames(nor.expr) = sub("^(.{15}).*", "\\1", colnames(nor.expr))
+        }
+
+      }else{
+        message("The parameter idtype = 'barcode' is invalid because the character length is less than 15.
+                Forced use of short IDs is equivalent to idtype = 'patient'.")
+      }
+    }else if(idtype == "patient" | nchar(colnames(expr)[1]) < 15){
+      nor.method.immdata <- process_data(nor.method.immdata, sort = "row")
+      tur.method.immdata <- process_data(tur.method.immdata, sort = "row")
+      if(length(expr.nor.id) > 1){
+        nor.expr <- process_data(nor.expr, sort = "column")
+      }
+
+      tur.expr <- process_data(tur.expr, sort = "column")
+    }else{stop("The idtype parameter should be one of 'barcode' or 'patient'.")}
+
+
+    if(datatype == "tumor"){
+      con.tur.id = intersect(colnames(tur.expr),rownames(tur.method.immdata))
+      filtered.data <- list(expr = tur.expr[,con.tur.id],
+                            immdata = as.data.frame(t(tur.method.immdata[con.tur.id,])))
+    }else if(length(expr.nor.id) > 0 & datatype == "normal"){
+      con.nor.id = intersect(colnames(nor.expr),rownames(nor.method.immdata))
+      filtered.data <- list(expr = nor.expr[,con.nor.id],
+                            immdata = as.data.frame(t(nor.method.immdata[con.nor.id,])))
+    }
+  }
+  return(filtered.data)
+
+}
