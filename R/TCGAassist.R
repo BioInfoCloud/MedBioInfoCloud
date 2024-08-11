@@ -3,10 +3,9 @@
 #'
 #' @param data data is a data frame where the first column represents the names of miRNAs, the second column contains the corresponding values, and the third column is the barcode.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export dlTCGAmiRNAdata
 #'
-#' @examples
 dlTCGAmiRNAdata <- function(data){
   colnames(data) <- c("mirName","value","barcode")
   temp <- lapply(unique(data$barcode), FUN = function(r){
@@ -37,10 +36,9 @@ dlTCGAmiRNAdata <- function(data){
 #' @param dataPath "GDCdata"
 #' @param json NULL
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export readMet450data
 #'
-#' @examples
 readMet450data = function(project = NULL,dataPath = "GDCdata",json = NULL){
 
   message(paste0("===========================MedBioInfoCloud:Starting==========================="))
@@ -120,11 +118,9 @@ readMet450data = function(project = NULL,dataPath = "GDCdata",json = NULL){
 #' Met450prepare
 #'
 #' @param query The GDCquery function requests the return result of the methylation data.
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return data.frame
+#' @export Met450prepare
+
 Met450prepare <- function(query){
   isServeOK()
   if(missing(query)) stop("Please set query parameter")
@@ -183,9 +179,8 @@ Met450prepare <- function(query){
 #' @param col_rename TRUE or FALSE
 #'
 #' @return data.frame
-#' @export
+#' @export delTCGA_dup_sample
 #'
-#' @examples
 delTCGA_dup_sample <- function(data,col_rename =T){
   data <- data[,sort(colnames(data))]
   pid = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
@@ -207,10 +202,9 @@ delTCGA_dup_sample <- function(data,col_rename =T){
 #' @param fil_col A string. Column name to be filtered.
 #' @param filter A value in the fil_col column.
 #'
-#' @return
-#' @export
+#' @return data.frame
+#' @export filterGeneTypeExpr
 #'
-#' @examples
 filterGeneTypeExpr <- function(expr,fil_col = "gene_type",filter = FALSE){
   #filter :"protein_coding","lncRNA","miRNA","misc_RNA","snRNA","miRNA","scRNA",....
 
@@ -233,6 +227,15 @@ filterGeneTypeExpr <- function(expr,fil_col = "gene_type",filter = FALSE){
   }
 }
 
+#' read_gene_level_copy_number
+#'
+#' @param files file path.
+#' @param cases For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param summarizedExperiment
+#'
+#' @return data.frame
+#' @export plyr,read_gene_level_copy_number
+#'
 read_gene_level_copy_number <- function(files,cases,summarizedExperiment = FALSE){
   message("Reading Gene Level Copy Number files")
   gistic.df <- NULL
@@ -265,6 +268,14 @@ read_gene_level_copy_number <- function(files,cases,summarizedExperiment = FALSE
   return(df)
 }
 
+#' readGISTIC
+#'
+#' @param files For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param cases For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @export readGISTIC
+#'
 readGISTIC <- function(files, cases){
   message("Reading GISTIC file")
   gistic.df <- NULL
@@ -293,6 +304,10 @@ readGISTIC <- function(files, cases){
 
   return(gistic.df)
 }
+#' read_copy_number_variation
+#' @param files For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param cases For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
 #' @importFrom purrr map2_dfr
 read_copy_number_variation <- function(files, cases){
   message("Reading copy number variation files")
@@ -314,10 +329,9 @@ read_copy_number_variation <- function(files, cases){
 #' @param data data.frame or matrix, the columns should be the barcode of the TCGA patient sample
 #' @param sample "Tumor" or "Normal"
 #'
-#' @return
-#' @export
+#' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @export splitTCGAmatrix
 #'
-#' @examples
 splitTCGAmatrix <- function(data,sample = "Tumor"){
   ##normal
   SamN <- TCGAbiolinks::TCGAquery_SampleTypes(barcode = colnames(data),
@@ -348,9 +362,8 @@ splitTCGAmatrix <- function(data,sample = "Tumor"){
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return a data.frame
-#' @export
+#' @export mergeSurExp
 #'
-#' @examples
 mergeSurExp <- function(expr
                         ,survival
                         ,Timeunit=1
@@ -416,7 +429,7 @@ mergeSurExp <- function(expr
 #' @param method For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @export
+#' @export getInfiltDataOfTCGAsample
 #'
 getInfiltDataOfTCGAsample <- function(expr,
                                       idtype = "barcode",

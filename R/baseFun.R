@@ -6,7 +6,6 @@
 #' @return data.frame
 #' @export GenomicFeatures,GenomicRanges
 #'
-#' @examples
 getGeneLenFromeGTF <- function(gtf){
   # reference 1: https://mp.weixin.qq.com/s/dwbpJ0nhzyIp9fDv7fEWEQ
   # reference 2: https://mp.weixin.qq.com/s/lazavD3jzRVO4QkxysHQcg
@@ -31,7 +30,6 @@ getGeneLenFromeGTF <- function(gtf){
 #' @return data.frame
 #' @export data.table
 #'
-#' @examples
 getGeneTypeInfoFromeGTF <- function(gtf){
   if (is.character(gtf)) {
     if(!file.exists(gtf)) stop("Bad gtf file.")
@@ -63,7 +61,6 @@ getGeneTypeInfoFromeGTF <- function(gtf){
 #' @return data.frame
 #' @export data.table,GenomicFeatures,GenomicRanges
 #'
-#' @examples
 getGeneBaseInfo <- function(gtf){
   ens2symInfo <- getGeneInfoFromeGTF(gtf)
   eff_length <- getGeneLenFromeGTF(gtf)
@@ -81,8 +78,7 @@ getGeneBaseInfo <- function(gtf){
 #' @return either a matrix or a data frame
 #' @export dplyr
 #'
-#' @examples
-RNAseqDataConversion <- function(data,type,species = "homo",gtf){
+RNAseqDataConversion <- function(data,type,species = "homo",gtf = NULL){
   if(type %in% c("Counts2TPM","Counts2FPKM","FPKM2TPM")){
     if(type == "FPKM2TPM"){
       return(FPKM2TPM(data))
@@ -119,7 +115,7 @@ RNAseqDataConversion <- function(data,type,species = "homo",gtf){
 #' @param effLen The length of genes.
 #'
 #' @return a data.frame
-#' @export
+#' @export Counts2TPM
 #'
 Counts2TPM <- function(counts, effLen){
   rate <- log(counts) - log(effLen)
@@ -149,21 +145,16 @@ FPKM2TPM <- function(fpkm){
   exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
 }
 
-
-
-
-
 #' outputGmtFile
 #'
 #' @param input list or data.frame
 #' @param description NA
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param filename filepath
-#'
-#' @return
+#' @return NULL
 #' @export
 #'
-#' @examples
+
 outputGmtFile <- function(input,description = NA,folder= ".",filename){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   if(is.data.frame(input)){
@@ -188,13 +179,29 @@ outputGmtFile <- function(input,description = NA,folder= ".",filename){
   }
 }
 
-geneset2gmt <- function(geneset,genesetname,description = NA,return = "data.frame",folder= ".",filename){
+#' geneset2gmt
+#'
+#' @param geneset A gene vector or a txt file path. Note that the contents of the txt text file should be one gene in a row.
+#' @param genesetname A string meaning the name of the gene set.
+#' @param description A string used to introduce the gene set, default is NA.
+#' @param return Return a value of "data frame" or "GeneSetCollection", said what kind of value, the equivalent of respectively with clusterProfiler: : read. GMT () function and GSEABase: : getGmt () function to read in the result of the GMT file, You can return the result as required.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return "data frame" or "GeneSetCollection" object.
+#' @export geneset2gmt
+#'
+geneset2gmt <- function(geneset,
+                        genesetname,
+                        description = NA,
+                        return = "data.frame",
+                        folder= ".",filename){
   if(length(geneset) == 1 ){
     if(grep(".txt$",geneset) & file.exists(geneset)){
       geneset <- readLines(geneset)
     }
   }
-  if(is.vector(geneset)){
+  if(is.vector(geneset) & length(geneset) > 1){
     input <- list(geneset = geneset)
     names(input) <- genesetname
   }
@@ -224,71 +231,64 @@ geneset2gmt <- function(geneset,genesetname,description = NA,return = "data.fram
 #' @return data.frame
 #' @export clusterProfiler
 #'
-#' @examples
-tidy.gmt <- function(filepath
-                     ,fun = "stat"
-                     ,Source = ""
-                     ,termName=NULL
-                     ,addTotal = FALSE
-                     ,save = TRUE
-                     ,folder = "."
-                     ,filename = "geneset"
-                     ){
-  # fl <- dir(filepath,pattern = pattern)
-  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
-  if(dir.exists(filepath)){
-    fp <- dir(filepath,pattern = "gmt$",full.names = T)
-  }else if(is.vector(filepath) & sum(grep("gmt$",filepath)) == length(filepath)){
+tidy.gmt <-  function (filepath, fun = "stat", Source = "", termName = NULL,
+                       addTotal = FALSE, save = TRUE, folder = ".", filename = "geneset") {
+  ifelse(dir.exists(folder), "", dir.create(folder, recursive = T))
+  if (dir.exists(filepath)) {
+    fp <- dir(filepath, pattern = "gmt$", full.names = T)
+  }else if (is.vector(filepath) & sum(grep("gmt$", filepath)) ==
+            length(filepath)) {
     fp <- filepath
   }
   stat.gs <- data.frame()
   mergedf <- data.frame()
   gs <- c()
-  for(x in fp){
+  for (x in fp) {
     ldf <- clusterProfiler::read.gmt(x)
-    mergedf <- rbind(mergedf,ldf)
-    gs <- unique(c(gs,ldf$gene))
-    df <- data.frame(term = gsub("_"," ",as.character(unique(ldf$term)))
-                     ,Source = Source
-                     ,`Gene count` = nrow(ldf)
-    )
-    stat.gs <- rbind(stat.gs,df)
+    if(nrow(ldf) != 0){
+      mergedf <- rbind(mergedf, ldf)
+      gs <- unique(c(gs, ldf$gene))
+      df <- data.frame(term = gsub("_", " ", as.character(unique(ldf$term))),
+                       Source = Source, `Gene count` = nrow(ldf))
+      stat.gs <- rbind(stat.gs, df)
+    }
+
   }
-  totallgene <- data.frame(term = ""
-                           ,Source = Source
-                           ,`Gene count` = paste0(length(unique(gs)),"(unique)")
-                           )
-  stat.gs <- rbind(stat.gs,totallgene)
+  totallgene <- data.frame(term = "", Source = Source, `Gene count` = paste0(length(unique(gs)),
+                                                                             "(unique)"))
+  stat.gs <- rbind(stat.gs, totallgene)
   if (!is.null(termName)) {
     colnames(stat.gs)[1] <- termName
   }
-  if(fun == "stat"){
-    if(save == TRUE){
-      writeLines(unique(gs),con = paste0(folder,"/",filename,"-stat.unique.txt"))
-      write.csv(stat.gs,file = paste0(folder,"/",filename,"-stat.csv"))
+  if (fun == "stat") {
+    if (save == TRUE) {
+      writeLines(unique(gs), con = paste0(folder, "/",
+                                          filename, "-stat.unique.txt"))
+      write.csv(stat.gs, file = paste0(folder, "/", filename,
+                                       "-stat.csv"))
     }
     return(stat.gs)
-  } else if(fun == "merge"){
-    if(save == TRUE){
-      writeLines(unique(gs),con = paste0(folder,"/",filename,"-merge.unique.txt"))
-      outputGmtFile(input = mergedf
-                    ,description = NA
-                    ,folder= folder
-                    ,filename = paste0(filename,"-merge.gmt"))
-      if(addTotal == TRUE){
-
-        addmergedf <- data.frame(term = ifelse(is.null(termName),"Total gene",termName)
-                                    ,gene = unique(gs))
-        mergedf <- rbind(mergedf,addmergedf)
-        outputGmtFile(input = mergedf
-                      ,description = NA
-                      ,folder= folder
-                      ,filename = paste0(filename,"-add-unique.gmt"))
+  }
+  else if (fun == "merge") {
+    if (save == TRUE) {
+      writeLines(unique(gs), con = paste0(folder, "/",
+                                          filename, "-merge.unique.txt"))
+      outputGmtFile(input = mergedf, description = NA,
+                    folder = folder, filename = paste0(filename,
+                                                       "-merge.gmt"))
+      if (addTotal == TRUE) {
+        addmergedf <- data.frame(term = ifelse(is.null(termName),
+                                               "Total gene", termName), gene = unique(gs))
+        mergedf <- rbind(mergedf, addmergedf)
+        outputGmtFile(input = mergedf, description = NA,
+                      folder = folder, filename = paste0(filename,
+                                                         "-add-unique.gmt"))
       }
     }
     return(mergedf)
   }
 }
+
 # tidy.gmt(filepath = "G:/publicData/base_files/GeneSet/Cytoskeleton",
 #          fun = "merge",
 #          folder = "G:/myProject/Cytoskeleton/data/geneset")
@@ -309,7 +309,6 @@ tidy.gmt <- function(filepath
 #' @return data.frame
 #' @export stringr
 #'
-#' @examples
 tidyGene.fromeReactome <- function(filepath
                                    ,fun = "stat"
                                    ,Source = "Reactome"
@@ -396,7 +395,6 @@ tidyGene.fromeReactome <- function(filepath
 #' @return GeneSetCollection object.
 #' @export GSEABase,read.gmt.to.getGmt
 #'
-#' @examples
 read.gmt.to.getGmt <- function(genesetdf){
   # 首先，按照 term 分组
   gene_sets_list <- split(genesetdf$gene, genesetdf$term)
@@ -423,7 +421,6 @@ read.gmt.to.getGmt <- function(genesetdf){
 #' @return data.frame
 #' @export GeneSetCollection.to.df
 #'
-#' @examples
 GeneSetCollection.to.df <- function(GeneSetCollection){
   genesetname <- names(GeneSetCollection)
   geneset = lapply(genesetname, function(x){

@@ -9,6 +9,9 @@ Met450prepare(query)
 \arguments{
 \item{query}{The GDCquery function requests the return result of the methylation data.}
 }
+\value{
+data.frame
+}
 \description{
 Met450prepare
 }

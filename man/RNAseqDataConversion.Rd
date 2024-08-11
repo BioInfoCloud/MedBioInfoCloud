@@ -4,7 +4,7 @@
 \alias{RNAseqDataConversion}
 \title{RNAseqDataConversion}
 \usage{
-RNAseqDataConversion(data, type, species = "homo", gtf)
+RNAseqDataConversion(data, type, species = "homo", gtf = NULL)
 }
 \arguments{
 \item{data}{RNAseq expression data, either a matrix or a data frame}

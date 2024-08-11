@@ -11,6 +11,9 @@ splitTCGAmatrix(data, sample = "Tumor")
 
 \item{sample}{"Tumor" or "Normal"}
 }
+\value{
+For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+}
 \description{
 splitTCGARNAseqdata
 }

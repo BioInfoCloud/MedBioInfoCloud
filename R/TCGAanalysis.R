@@ -11,7 +11,6 @@
 #' @return a data.frame
 #' @export TCGAbiolinks
 #'
-#' @examples
 getGeneExpData.pancancer <- function(datafolder,
                                      geneSymbol,
                                      geneType = "protein_coding",
@@ -88,7 +87,6 @@ getGeneExpData.pancancer <- function(datafolder,
 #' @return ggolot object.
 #' @export ggplot2,TCGAbiolinks,ggpubr
 #'
-#' @examples
 ggplotGenePancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
   if(gene %in% data$gene){

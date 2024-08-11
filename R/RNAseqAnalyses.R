@@ -51,7 +51,6 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 #' @return A data.frame
 #' @export limma,DESeq2,edgeR
 #'
-#' @examples
 geneDEAnalysis <- function (data, group, comparison,
                               method = "DESeq2", filter = TRUE){
   dge = DGEList(counts = data)

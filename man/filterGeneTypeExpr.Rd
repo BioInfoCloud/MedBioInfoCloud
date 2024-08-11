@@ -13,6 +13,9 @@ filterGeneTypeExpr(expr, fil_col = "gene_type", filter = FALSE)
 
 \item{filter}{A value in the fil_col column.}
 }
+\value{
+data.frame
+}
 \description{
 RNAseq data in TCGA database were filtered according to genotype.
 }

@@ -13,6 +13,9 @@ readMet450data(project = NULL, dataPath = "GDCdata", json = NULL)
 
 \item{json}{NULL}
 }
+\value{
+data.frame
+}
 \description{
 readMet450data
 }

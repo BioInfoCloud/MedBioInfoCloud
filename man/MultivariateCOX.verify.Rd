@@ -13,6 +13,9 @@ MultivariateCOX.verify(dataset, MulCox.sigFactors, coef)
 
 \item{coef}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 }
+\value{
+list
+}
 \description{
 MultivariateCOX.verify
 }

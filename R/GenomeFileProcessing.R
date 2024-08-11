@@ -55,7 +55,7 @@ getGeneInfoFromeGTF <- function(gtf){
 #' @param gtf gtf gtf Gene annotation file in gtf format. https://www.gencodegenes.org/
 #'
 #' @return a data.frame
-#' @export
+#' @export getGeneBaseInfo
 #'
 getGeneBaseInfo <- function(gtf){
   ens2symInfo <- getGeneInfoFromeGTF(gtf)

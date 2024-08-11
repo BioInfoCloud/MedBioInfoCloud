@@ -7,7 +7,6 @@
 #' @return list
 #' @export WGCNA,ComplexHeatmap,grid
 #'
-#' @examples
 WGCNA.blockwiseModules <- function(expr
                                    ,recal = FALSE
                                    ,folder="."
@@ -92,7 +91,6 @@ WGCNA.blockwiseModules <- function(expr
 #' @return finish
 #' @export WGCNA,ComplexHeatmap,grid
 #'
-#' @examples
 WGCNA.ModulesPhenotype <- function(expr
                                    ,phenotype
                                    ,TCGA = FALSE

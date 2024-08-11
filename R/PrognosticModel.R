@@ -10,9 +10,8 @@
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return vector
-#' @export
+#' @export featureSelect.randomForest
 #'
-#' @examples
 featureSelect.randomForest <- function(data
                                        ,dataFrom ="mergeSurExp"
                                        ,save = TRUE
@@ -55,7 +54,6 @@ featureSelect.randomForest <- function(data
 #' @return data.frame
 #' @export survival
 #'
-#' @examples
 UnivariateCOX <- function(data,variable){ ## 构建一个R function 便于后期调用
   FML <- as.formula(paste0('BaSurv~',variable)) ## 构建生存分析公式
   GCox <- coxph(FML, data = data) ## Cox分析
@@ -82,9 +80,8 @@ UnivariateCOX <- function(data,variable){ ## 构建一个R function 便于后期
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return vector
-#' @export
+#' @export featureSelect.UnivariateCox
 #'
-#' @examples
 featureSelect.UnivariateCox <- function(data
                               ,dataFrom ="mergeSurExp",
                               feature ="all"
@@ -129,7 +126,6 @@ featureSelect.UnivariateCox <- function(data
 #' @return list
 #' @export forestplot,viridis
 #'
-#' @examples
 cox.forestplot <- function(forest_data,ylab,save = FALSE,folder = "."){
   #####==================森林图样式一
   HR <- forest_data$Hazard.Ratio
@@ -197,7 +193,6 @@ cox.forestplot <- function(forest_data,ylab,save = FALSE,folder = "."){
 #' @return vector
 #' @export glmnet
 #'
-#' @examples
 featureSelect.lasso <- function(data
                                 ,dataFrom ="mergeSurExp",
                                 feature ="all"
@@ -258,9 +253,8 @@ featureSelect.lasso <- function(data
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return list or vector
-#' @export
+#' @export featureSelect.baseSur
 #'
-#' @examples
 featureSelect.baseSur <- function(data
                                   ,dataFrom ="mergeSurExp",
                                   feature ="all"
@@ -323,10 +317,9 @@ featureSelect.baseSur <- function(data
 #' @param MulCox.sigFactors For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param coef For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
-#' @return
-#' @export
+#' @return list
+#' @export MultivariateCOX.verify
 #'
-#' @examples
 MultivariateCOX.verify <- function(dataset,MulCox.sigFactors,coef){
   signature <- as.matrix(subset(dataset,select = MulCox.sigFactors)) %*% as.matrix(exp(coef))
   dataset <- mutate(dataset, signature = as.numeric(signature),.before = 1)
@@ -359,9 +352,8 @@ MultivariateCOX.verify <- function(dataset,MulCox.sigFactors,coef){
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @export
+#' @export MultivariateCOX
 #'
-#' @examples
 MultivariateCOX <- function(data
                             ,dataFrom ="mergeSurExp",
                             feature ="all"
