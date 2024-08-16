@@ -5,7 +5,7 @@
 #'
 #' @return a data.fram
 #' @seealso getGeneInfoFromeGTF,getGeneBaseInfo
-#' @export
+#' @export getGeneLenFromeGTF
 getGeneLenFromeGTF <- function(gtf){
   # reference 1: https://mp.weixin.qq.com/s/dwbpJ0nhzyIp9fDv7fEWEQ
   # reference 2: https://mp.weixin.qq.com/s/lazavD3jzRVO4QkxysHQcg
@@ -24,7 +24,7 @@ getGeneLenFromeGTF <- function(gtf){
 #' @param gtf gtf gtf Gene annotation file in gtf format. https://www.gencodegenes.org/
 #'
 #' @return a data.frame
-#' @export
+#' @export getGeneInfoFromeGTF
 #'
 getGeneInfoFromeGTF <- function(gtf){
   if (is.character(gtf)) {

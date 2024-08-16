@@ -7,7 +7,7 @@
 #' @param gtype 'Ensemble' or 'Symbol'
 #'
 #' @return data.frame
-#' @export dplyr
+#' @export RNAseqDataTrans
 #'
 RNAseqDataTrans <- function(data,tfun,species,gtype){
   if(!(species %in% c("hsa","mus"))){
@@ -49,7 +49,7 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 #' @param filter TRUE or FALSE
 #'
 #' @return A data.frame
-#' @export limma,DESeq2,edgeR
+#' @export geneDEAnalysis
 #'
 geneDEAnalysis <- function (data, group, comparison,
                               method = "DESeq2", filter = TRUE){

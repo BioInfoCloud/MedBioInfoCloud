@@ -9,7 +9,7 @@
 #' @param nnorm indicates the minimum number of normal samples that must be included.
 #'
 #' @return a data.frame
-#' @export TCGAbiolinks
+#' @export getGeneExpData.pancancer
 #'
 getGeneExpData.pancancer <- function(datafolder,
                                      geneSymbol,
@@ -29,21 +29,21 @@ getGeneExpData.pancancer <- function(datafolder,
       load(FilePath[grep(project,FilePath)])#STARdata
 
       data <- STARdata[[dataType]]
-      data <- MedBioInfoCloud::filterGeneTypeExpr(expr =data,
+      data <- filterGeneTypeExpr(expr =data,
                                                   fil_col = "gene_type",
                                                   filter = geneType)
       geneSymbol <- intersect(geneSymbol,rownames(data))
       if(length(geneSymbol)>=1){
-        turexp <- MedBioInfoCloud::splitTCGAmatrix(data = data,sample = "Tumor")
-        norexp <- MedBioInfoCloud::splitTCGAmatrix(data = data,sample = "Normal")
+        turexp <- splitTCGAmatrix(data = data,sample = "Tumor")
+        norexp <- splitTCGAmatrix(data = data,sample = "Normal")
 
         if(!is.null(ncol(norexp))){
 
           if(ncol(norexp) >= nnorm){
             if(paired){
               # 配对样本
-              turexp <- MedBioInfoCloud::delTCGA_dup_sample (turexp)
-              norexp <- MedBioInfoCloud::delTCGA_dup_sample (norexp)
+              turexp <- delTCGA_dup_sample (turexp)
+              norexp <- delTCGA_dup_sample (norexp)
               concol <- intersect(colnames(turexp),colnames(norexp))
               if(length(concol) >= 2){
                 turexp <- turexp[,concol]
@@ -85,7 +85,7 @@ getGeneExpData.pancancer <- function(datafolder,
 #' @param paired indicates whether the data consists of paired samples.
 #'
 #' @return ggolot object.
-#' @export ggplot2,TCGAbiolinks,ggpubr
+#' @export ggplotGenePancancerExp
 #'
 ggplotGenePancancerExp <- function(data,gene,save = FALSE,folder = ".",paired = FALSE){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))

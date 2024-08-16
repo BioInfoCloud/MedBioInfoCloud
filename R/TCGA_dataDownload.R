@@ -6,7 +6,7 @@
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return a list
-#' @export TCGAbiolinks
+#' @export getTCGA_RNAseqData
 #'
 getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
@@ -39,7 +39,7 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_ProteinExp
 #'
 getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
@@ -62,7 +62,7 @@ getTCGA_ProteinExp <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_SNV_Masked_data
 #'
 getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -85,7 +85,7 @@ getTCGA_SNV_Masked_data <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_miRNA_IsoformEQ
 #'
 getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
@@ -106,8 +106,8 @@ getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
                                columns = c("ACCESSION","NAME"))
   mir$mirName <- ano$NAME[match(mir$miRNA_region,ano[,"ACCESSION"])]
   message("Processing data......")
-  mirCount <- MedBioInfoCloud::dlTCGAmiRNAdata(mir[,c("mirName","read_count","barcode")])
-  mirRPM <- MedBioInfoCloud::dlTCGAmiRNAdata(mir[,c("mirName","reads_per_million_miRNA_mapped","barcode")])#
+  mirCount <- dlTCGAmiRNAdata(mir[,c("mirName","read_count","barcode")])
+  mirRPM <- dlTCGAmiRNAdata(mir[,c("mirName","reads_per_million_miRNA_mapped","barcode")])#
   miRNA_data <- list(mirCount = mirCount,RPM = mirRPM)
   if(save == TRUE){
     save(miRNA_data,file = paste0(folder,"/",project,"-miRNA_IsoformExpressionQuantification.Rdata"))
@@ -122,7 +122,7 @@ getTCGA_miRNA_IsoformEQ <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_miRNAEQ
 #'
 getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
@@ -153,7 +153,7 @@ getTCGA_miRNAEQ <- function(project,save = FALSE,folder = "."){
 #' @param folder The path specifies the location of the folder where the data is saved when the 'save' parameter is set to TRUE.
 #'
 #' @return data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_MethylationData
 #'
 getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
   message(paste0("=====================",project," Starting====================="))
@@ -178,6 +178,7 @@ getTCGA_MethylationData <- function(project,save = FALSE,folder = "."){
 #' @param data.type "Gene Level Copy Number" or "Gene Level Copy Number Scores"
 #'
 #' @importFrom purrr map2_dfr
+#' @export getTCGA_CNV.data
 getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene Level Copy Number"){
   message(paste0("=====================",project," Starting====================="))
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -218,7 +219,7 @@ getTCGA_CNV.data <- function(project,save = FALSE,folder = ".",data.type = "Gene
 #' @param trim TRUE or FALSE
 #'
 #' @return A data.frame
-#' @export TCGAbiolinks
+#' @export getTCGA_ClinicalData
 #'
 getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
   ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
@@ -252,7 +253,7 @@ getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
       processed_clindata$ajcc_m <- substr(processed_clindata$ajcc_m,1,2)
       processed_clindata$ajcc_stage <- gsub("[A-F]","",processed_clindata$ajcc_stage)
       processed_clindata$ageGroup <- ifelse(processed_clindata$age >50,">50","≦50")
-      ###============下面2行代码很重要
+
       processed_clindata <- dplyr::arrange(processed_clindata,submitter_id,desc(surTime))
       processed_clindata <- processed_clindata[!duplicated(processed_clindata$submitter_id),]
       if(save == TRUE){
@@ -293,7 +294,7 @@ getTCGA_ClinicalData <- function(project,save = FALSE,folder = ".",trim = TRUE){
       processed_clindata$ageGroup <- ifelse(processed_clindata$age >50,">50","≦50")
 
       unique(processed_clindata$submitter_id)
-      ###============下面2行代码很重要
+
       processed_clindata <- dplyr::arrange(processed_clindata,submitter_id,desc(surTime))
       processed_clindata <- processed_clindata[!duplicated(processed_clindata$submitter_id),]
       if(save == TRUE){

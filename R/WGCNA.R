@@ -5,7 +5,7 @@
 #' @param folder Folder path
 #'
 #' @return list
-#' @export WGCNA,ComplexHeatmap,grid
+#' @export WGCNA.blockwiseModules
 #'
 WGCNA.blockwiseModules <- function(expr
                                    ,recal = FALSE
@@ -89,7 +89,7 @@ WGCNA.blockwiseModules <- function(expr
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return finish
-#' @export WGCNA,ComplexHeatmap,grid
+#' @export WGCNA.ModulesPhenotype
 #'
 WGCNA.ModulesPhenotype <- function(expr
                                    ,phenotype
@@ -297,7 +297,7 @@ WGCNA.ModulesPhenotype <- function(expr
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @export WGCNA
+#' @export WGCNA.ModulesScoresys
 #'
 WGCNA.ModulesScoresys <- function(expr
                                   ,TCGA = FALSE
@@ -353,7 +353,7 @@ WGCNA.ModulesScoresys <- function(expr
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @export WGCNA
+#' @export get.geneExpbasedonCor
 #'
 get.geneExpbasedonCor <- function(expr
                                   ,gene
@@ -416,7 +416,7 @@ get.geneExpbasedonCor <- function(expr
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @export WGCNA
+#' @export WGCNA.hubgeneBasedgeneCor
 #'
 WGCNA.hubgeneBasedgeneCor <- function(expr
                                       ,gene

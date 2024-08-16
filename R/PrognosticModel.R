@@ -1,6 +1,3 @@
-
-
-
 #' featureSelect.randomForest
 #'
 #' @param data For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
@@ -52,7 +49,7 @@ featureSelect.randomForest <- function(data
 #' @param variable For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return data.frame
-#' @export survival
+#' @export UnivariateCOX
 #'
 UnivariateCOX <- function(data,variable){ ## 构建一个R function 便于后期调用
   FML <- as.formula(paste0('BaSurv~',variable)) ## 构建生存分析公式
@@ -124,7 +121,7 @@ featureSelect.UnivariateCox <- function(data
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return list
-#' @export forestplot,viridis
+#' @export cox.forestplot
 #'
 cox.forestplot <- function(forest_data,ylab,save = FALSE,folder = "."){
   #####==================森林图样式一
@@ -191,7 +188,7 @@ cox.forestplot <- function(forest_data,ylab,save = FALSE,folder = "."){
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return vector
-#' @export glmnet
+#' @export featureSelect.lasso
 #'
 featureSelect.lasso <- function(data
                                 ,dataFrom ="mergeSurExp",

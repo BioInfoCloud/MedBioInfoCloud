@@ -234,7 +234,7 @@ filterGeneTypeExpr <- function(expr,fil_col = "gene_type",filter = FALSE){
 #' @param summarizedExperiment
 #'
 #' @return data.frame
-#' @export plyr,read_gene_level_copy_number
+#' @export read_gene_level_copy_number
 #'
 read_gene_level_copy_number <- function(files,cases,summarizedExperiment = FALSE){
   message("Reading Gene Level Copy Number files")
@@ -309,6 +309,7 @@ readGISTIC <- function(files, cases){
 #' @param cases For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @importFrom purrr map2_dfr
+#' @export read_copy_number_variation
 read_copy_number_variation <- function(files, cases){
   message("Reading copy number variation files")
 
@@ -388,7 +389,7 @@ mergeSurExp <- function(expr
   if(!is.null(feature)){
     conFeature <- intersect(rownames(expr),feature)
     expr <- expr[conFeature,]
-    expr <- MedBioInfoCloud::delTCGA_dup_sample(expr,col_rename = TRUE)
+    expr <- delTCGA_dup_sample(expr,col_rename = TRUE)
   }
   if(survivalFrome == "UCSC2022"){
     survival = dplyr::arrange(survival,desc(OS.time))

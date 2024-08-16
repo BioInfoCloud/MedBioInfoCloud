@@ -4,7 +4,7 @@
 #' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
 #'
 #' @return data.frame
-#' @export GenomicFeatures,GenomicRanges
+#' @export getGeneLenFromeGTF
 #'
 getGeneLenFromeGTF <- function(gtf){
   # reference 1: https://mp.weixin.qq.com/s/dwbpJ0nhzyIp9fDv7fEWEQ
@@ -28,7 +28,7 @@ getGeneLenFromeGTF <- function(gtf){
 #' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
 #'
 #' @return data.frame
-#' @export data.table
+#' @export getGeneTypeInfoFromeGTF
 #'
 getGeneTypeInfoFromeGTF <- function(gtf){
   if (is.character(gtf)) {
@@ -59,7 +59,7 @@ getGeneTypeInfoFromeGTF <- function(gtf){
 #' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
 #'
 #' @return data.frame
-#' @export data.table,GenomicFeatures,GenomicRanges
+#' @export getGeneBaseInfo
 #'
 getGeneBaseInfo <- function(gtf){
   ens2symInfo <- getGeneInfoFromeGTF(gtf)
@@ -76,7 +76,7 @@ getGeneBaseInfo <- function(gtf){
 #' @param gtf The gtf parameter represents the path to a GTF (Gene Transfer Format) format file.
 #'
 #' @return either a matrix or a data frame
-#' @export dplyr
+#' @export RNAseqDataConversion
 #'
 RNAseqDataConversion <- function(data,type,species = "homo",gtf = NULL){
   if(type %in% c("Counts2TPM","Counts2FPKM","FPKM2TPM")){
@@ -128,7 +128,7 @@ Counts2TPM <- function(counts, effLen){
 #' @param effLen The length of genes.
 #'
 #' @return a data.frame
-#' @export
+#' @export Counts2FPKM
 #'
 Counts2FPKM <- function(counts, effLen){
   N <- sum(counts)
@@ -139,7 +139,7 @@ Counts2FPKM <- function(counts, effLen){
 #' @param fpkm a data.frame or matrix for fpkm of RNAseq.
 #'
 #' @return a data.frame
-#' @export
+#' @export FPKM2TPM
 #'
 FPKM2TPM <- function(fpkm){
   exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
@@ -152,7 +152,7 @@ FPKM2TPM <- function(fpkm){
 #' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #' @param filename filepath
 #' @return NULL
-#' @export
+#' @export outputGmtFile
 #'
 
 outputGmtFile <- function(input,description = NA,folder= ".",filename){
@@ -229,7 +229,7 @@ geneset2gmt <- function(geneset,
 #' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return data.frame
-#' @export clusterProfiler
+#' @export tidy.gmt
 #'
 tidy.gmt <-  function (filepath, fun = "stat", Source = "", termName = NULL,
                        addTotal = FALSE, save = TRUE, folder = ".", filename = "geneset") {
@@ -307,7 +307,7 @@ tidy.gmt <-  function (filepath, fun = "stat", Source = "", termName = NULL,
 #' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return data.frame
-#' @export stringr
+#' @export tidyGene.fromeReactome
 #'
 tidyGene.fromeReactome <- function(filepath
                                    ,fun = "stat"
@@ -393,7 +393,7 @@ tidyGene.fromeReactome <- function(filepath
 #' @param genesetdf The result of the read.gmt() function
 #'
 #' @return GeneSetCollection object.
-#' @export GSEABase,read.gmt.to.getGmt
+#' @export read.gmt.to.getGmt
 #'
 read.gmt.to.getGmt <- function(genesetdf){
   # 首先，按照 term 分组
