@@ -182,13 +182,17 @@ Met450prepare <- function(query){
 #' @export delTCGA_dup_sample
 #'
 delTCGA_dup_sample <- function(data,col_rename =T){
-  data <- data[,sort(colnames(data))]
-  pid = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
-  reps = pid[duplicated(pid)]##重复样本
-  if(length(reps)== 0 ){
-    message("There were no duplicate patient samples for this data")
+  if(ncol(data) == 1){
+    colnames(data) <- gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
   }else{
-    data <- data[,!duplicated(pid)]
+    data <- data[,sort(colnames(data))]
+    pid = gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
+    reps = pid[duplicated(pid)]##重复样本
+    if(length(reps)== 0 ){
+      message("There were no duplicate patient samples for this data")
+    }else{
+      data <- data[,!duplicated(pid)]
+    }
   }
   if(col_rename == T){
     colnames(data) <- gsub("(.*?)-(.*?)-(.*?)-.*","\\1-\\2-\\3",colnames(data))
@@ -201,30 +205,33 @@ delTCGA_dup_sample <- function(data,col_rename =T){
 #' @param expr Gene expression data.
 #' @param fil_col A string. Column name to be filtered.
 #' @param filter A value in the fil_col column.
+#' @param rownname For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param delcol For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 #'
 #' @return data.frame
 #' @export filterGeneTypeExpr
 #'
-filterGeneTypeExpr <- function(expr,fil_col = "gene_type",filter = FALSE){
-  #filter :"protein_coding","lncRNA","miRNA","misc_RNA","snRNA","miRNA","scRNA",....
+filterGeneTypeExpr <- function (expr,
+                                rownname  = "gene_name",
+                                fil_col = "gene_type",
+                                filter = FALSE,delcol = c(1:3)) {
+  expr <- as.data.frame(expr)
+  dat <- expr[apply(expr[, -c(delcol)], 1, var) != 0, ]
+  dat <- dplyr::mutate(dat, Sums = rowSums(dat[, -c(delcol)]))
+  dat <- dplyr::arrange(dat, fil_col, desc(Sums))
+  dat <- dat[!duplicated(dat[,rownname]), ]
+  dat <- dat[!is.na(dat[,rownname]),]
+  if(rownname %in% colnames(dat)){
+    rownames(dat) <- dat[,rownname]
+  }else{stop("error:rownname not found in column names or rownname is empty")}
 
-  ##Delete unexpressed genes(rows)in all samples from expr.
-  dat <- expr[apply(expr[,-c(1:3)], 1, var)!=0,]
-  ##rowSums
-  dat <- dplyr::mutate(dat,Sums = rowSums(dat[,-c(1:3)]),.before = 4)
-  dat <- dplyr::arrange(dat,gene_name,desc(Sums))
-  dat <- dat[!duplicated(dat$gene_name),]
-  rownames(dat) <- dat$gene_name
   if (filter == FALSE) {
-    return(dat[,-c(1:4)])
-  }else{
-    colnames(dat)[grep(fil_col,colnames(dat))] = "fil_col"
-    dat = subset(dat,fil_col == "protein_coding") %>% as.data.frame()
-    rownames(dat) <- dat$gene_name
-    dat <- dat[,-c(1:4)]
-    # dat <- dat[dat[,fil_col] == filter,-c(1:4)]
+    return(dat[, -c(delcol,ncol(dat))])
+  }else if((filter %in% unique(expr[,fil_col]) & length(filter) == 1)){
+    dat = subset(dat, fil_col == fil_col) %>% as.data.frame()
+    dat <- dat[, -c(delcol,ncol(dat))]
     return(dat)
-  }
+  }else{stop("error:filter")}
 }
 
 #' read_gene_level_copy_number
@@ -341,9 +348,15 @@ splitTCGAmatrix <- function(data,sample = "Tumor"){
   SamT <- setdiff(colnames(data),SamN)
   if(sample == "Tumor"){
     return(data[,SamT])
-  }else if(sample == "Normal" & length(SamN)> 0 ){
+  }else if(sample == "Normal" & length(SamN)> 1 ){
     return(data[,SamN])
-  }else {
+  }else if(length(SamN) == 1){
+    dat1 = data.frame(data[,SamN])
+    colnames(dat1) = SamN
+    rownames(dat1) = rownames(data)
+    return(dat1)
+  }
+  else{
     message("expr contains no normal samples or the parameter 'sample' is incorrect.")
     return(NULL)
   }
@@ -380,16 +393,18 @@ mergeSurExp <- function(expr
     # table(expr$gene_type)
     expr <- filterGeneTypeExpr(expr = expr
                                ,fil_col = "gene_type"
-                               ,filter = "protein_coding"
     )
     expr <- splitTCGAmatrix(data = expr
                             ,sample = "Tumor"
     )
+    expr <- delTCGA_dup_sample(expr,col_rename = T)
   }
   if(!is.null(feature)){
     conFeature <- intersect(rownames(expr),feature)
-    expr <- expr[conFeature,]
-    expr <- delTCGA_dup_sample(expr,col_rename = TRUE)
+    if(length(conFeature)>=1){
+      expr <- expr[conFeature,]
+    }else{stop("Error:feature")}
+
   }
   if(survivalFrome == "UCSC2022"){
     survival = dplyr::arrange(survival,desc(OS.time))
@@ -403,18 +418,85 @@ mergeSurExp <- function(expr
     survival <- dplyr::arrange(survival,desc(surTime))
     survival <- survival[!duplicated(survival$submitter_id),]
     rownames(survival) <- survival$submitter_id
-  }else{
-    conSample <- intersect(colnames(expr),rownames(survival))
-    if(length(conSample)>0){
-      expr <- expr[,conSample]
-      survival <- survival[conSample,]
-      mergdata <-cbind(survival,t(expr))
-    }
   }
-  mergdata <- na.omit(mergdata)
+  conSample <- intersect(colnames(expr),rownames(survival))
+  if(length(conSample)>0){
+    expr <- expr[,conSample]
+    survival <- survival[conSample,]
+    mergdata <-cbind(survival,t(expr))
+  }else{stop("Sample mismatch")}
   mergdata$surTime <- mergdata$surTime/Timeunit
 
   if(save == TRUE){
+    if(!dir.exists(folder)){
+      dir.create(folder,recursive = TRUE)
+    }
+    save(mergdata,file = paste0(folder,"/mergeSurExp.Rdata"))
+    write.csv(mergdata,file = paste0(folder,"/mergeSurExp.csv"))
+  }
+  return(mergdata)
+}
+
+
+#' mergeClinExp
+#'
+#' @param expr For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param clinical For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param survivalFrome For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param TCGA For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param TCGAfrome For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param feature For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param save For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#'
+#' @return data.frame
+#' @export mergeClinExp
+#'
+mergeClinExp <- function(expr
+                         ,clinical
+                         ,survivalFrome = NULL
+                         ,TCGA = FALSE
+                         ,TCGAfrome = "MedBioInfoCloud"
+                         ,feature = NULL
+                         ,save = FALSE
+                         ,folder = "."
+){
+  if(TCGA == TRUE & TCGAfrome == "MedBioInfoCloud"){
+    # expr <- STARdata[["tpm"]]
+    # table(expr$gene_type)
+    expr <- filterGeneTypeExpr(expr = expr
+                               ,fil_col = "gene_type"
+    )
+    expr <- splitTCGAmatrix(data = expr
+                            ,sample = "Tumor"
+    )
+    expr <- delTCGA_dup_sample(expr,col_rename = T)
+  }
+  if(!is.null(feature)){
+    conFeature <- intersect(rownames(expr),feature)
+    if(length(conFeature)>=1){
+      expr <- expr[conFeature,]
+    }else{stop("Error:feature")}
+
+  }
+  if(survivalFrome == "UCSC2022"){
+    clinical = dplyr::arrange(clinical,desc(OS.time))
+    clinical = clinical[!duplicated(clinical$X_PATIENT),]
+    rownames(clinical) <- clinical$X_PATIENT
+    clinical <- clinical[,c("X_PATIENT","OS","OS.time")]
+    colnames(clinical) <- c("submitter_id","vitalStat","surTime")
+  }
+  conSample <- intersect(colnames(expr),rownames(clinical))
+  if(length(conSample)>0){
+    expr <- expr[,conSample]
+    clinical <- clinical[conSample,]
+    mergdata <-cbind(clinical,t(expr))
+  }else{stop("Sample mismatch")}
+
+  if(save == TRUE){
+    if(!dir.exists(folder)){
+      dir.create(folder,recursive = TRUE)
+    }
     save(mergdata,file = paste0(folder,"/mergeSurExp.Rdata"))
     write.csv(mergdata,file = paste0(folder,"/mergeSurExp.csv"))
   }
@@ -513,5 +595,4 @@ getInfiltDataOfTCGAsample <- function(expr,
     }
   }
   return(filtered.data)
-
 }
