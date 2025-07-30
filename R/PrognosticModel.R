@@ -51,7 +51,7 @@ featureSelect.randomForest <- function(data
 #' @return data.frame
 #' @export UnivariateCOX
 #'
-UnivariateCOX <- function(data,variable){ ## 构建一个R function 便于后期调用
+UnivariateCOX <- function(data,variable,BaSurv){ ## 构建一个R function 便于后期调用
   FML <- as.formula(paste0('BaSurv~',variable)) ## 构建生存分析公式
   GCox <- coxph(FML, data = data) ## Cox分析
   GSum <- summary(GCox) ## 输出结果
@@ -80,12 +80,12 @@ UnivariateCOX <- function(data,variable){ ## 构建一个R function 便于后期
 #' @export featureSelect.UnivariateCox
 #'
 featureSelect.UnivariateCox <- function(data
-                              ,dataFrom ="mergeSurExp",
-                              feature ="all"
-                              ,cutoff = 0.05
-                              ,save = TRUE
-                              ,folder = "."){
-  if(!is.null(dataFrom) & dataFrom == "mergeSurExp"){
+                                        ,dataFrom ="mergeSurExp",
+                                        feature ="all"
+                                        ,cutoff = 0.05
+                                        ,save = TRUE
+                                        ,folder = "."){
+  if(dataFrom == "mergeSurExp"){
     data <- data[,-1]
   }
   if(!(feature == "all")){
@@ -95,9 +95,9 @@ featureSelect.UnivariateCox <- function(data
     VarNames <- colnames(data)[-c(1:2)]
   }
   BaSurv <- survival::Surv(time = data$surTime, ## 生存时间
-                 event = data$vitalStat) ## 生存状态
+                           event = data$vitalStat) ## 生存状态
   UniVar <- lapply(VarNames,function(x){
-    UnivariateCOX(data,variable = x)
+    UnivariateCOX(data,variable = x,BaSurv = BaSurv)
   }) ## 批量做Cox分析
   UniVar <- plyr::ldply(UniVar,data.frame) ## 将结果整理为一个数据框
   uniCox.select.fs <- UniVar$characteristics[which(UniVar$P.Value < cutoff)] %>% as.character() ## 筛选其中P值<0.2的变量纳入多因素cox分析。
@@ -204,6 +204,7 @@ featureSelect.lasso <- function(data
   }else{
     VarNames <- colnames(data)[-c(1:2)]
   }
+
   #### Step II 迭代特征选取 ####
   ## Chr I 随机森林（生存分析) ##
   fs_expr <- as.matrix(data[,-c(1:2)]) ## 根据R包的要求，将数据需要筛选的部分提取转换为矩阵,lasso不需要生存时间和生存状态，所以多删除两列
@@ -215,14 +216,14 @@ featureSelect.lasso <- function(data
                         ,family = "cox"
                         ,maxit = 5000
                         ,alpha = 1
-                        )
+  )
 
   cvfit = glmnet::cv.glmnet(x = fs_expr
-                    ,Surv(data$surTime,data$vitalStat)
-                    ,nfold=10#10倍交叉验证，非必须限定条件.
-                    ,family = "cox"
-                    ,alpha = 1
-                    )
+                            ,Surv(data$surTime,data$vitalStat)
+                            ,nfold=10#10倍交叉验证，非必须限定条件.
+                            ,family = "cox"
+                            ,alpha = 1
+  )
 
   coef.min = coef(cvfit, s = "lambda.min")  ## lambda.min & lambda.1se 取一个
   active.min = which(coef.min != 0 ) ## 找出那些回归系数没有被惩罚为0的
@@ -265,14 +266,14 @@ featureSelect.baseSur <- function(data
                                      ,save = save
                                      ,feature = feature
                                      ,folder = folder
-                                     )
+    )
     cox <- featureSelect.UnivariateCox(data = data
                                        ,dataFrom = dataFrom,
                                        feature = feature
                                        ,cutoff = cutoff
                                        ,save = save
                                        ,folder = folder
-                                       )
+    )
     lasso <- featureSelect.lasso(data = data
                                  ,dataFrom =dataFrom,
                                  feature = feature
@@ -293,7 +294,7 @@ featureSelect.baseSur <- function(data
                                        ,cutoff = cutoff
                                        ,save = save
                                        ,folder = folder
-                                       )
+    )
     return(cox)
   }else if(method == "randomForest"){
     rf <- featureSelect.randomForest(data = data
@@ -324,16 +325,23 @@ MultivariateCOX.verify <- function(dataset,MulCox.sigFactors,coef){
   Group <- ifelse(dataset$signature > median(dataset$signature),'High-Score','Low-Score') ## 这里的命名要注意！！！
   dataset <- mutate(dataset, signatureGruop = Group,.before = 2)
   fit <- survfit(Surv(surTime, vitalStat)~signatureGruop,data = dataset)
-  p <- ggsurvplot(fit, conf.int=F, pval=T,
+  p <- ggsurvplot(fit, conf.int=F,
+                  pval=T,
                   risk.table=T,
                   legend.labs = c('High-Score','Low-Score'),
                   legend.title='Risk Score',
                   palette = c("dodgerblue2","orchid2"),
-                  risk.table.height = 0.3)
+                  risk.table.height = 0.3,
+                  ggtheme = (theme_classic() + theme(
+                    legend.text = element_text(size = 12,  color = "black"),
+                    legend.title = element_text(size = 12,  color = "black"),
+                    axis.text = element_text(size = 12,  color = "black"),
+                    axis.title = element_text(size = 12,  color = "black"))
+                  ))+xlab("Time")
   return(list(dataset = dataset
               ,survfit = fit
               ,ggsurvplot = p
-              ))
+  ))
 }
 
 
@@ -408,12 +416,12 @@ MultivariateCOX <- function(data
 
     coef <- MultiSum$coefficients[,1] %>% as.numeric() %>% exp()
     trainSet.result = MultivariateCOX.assist(dataset = trainSet
-                                ,MulCox.sigFactors = MulCox.sigFactors
-                                ,coef = coef
-                                )
+                                             ,MulCox.sigFactors = MulCox.sigFactors
+                                             ,coef = coef
+    )
     testSet.result <- MultivariateCOX.assist(dataset = testSet
-                                    ,MulCox.sigFactors = MulCox.sigFactors
-                                    ,coef = coef
+                                             ,MulCox.sigFactors = MulCox.sigFactors
+                                             ,coef = coef
     )
     if(save == TRUE){
       save(MulCox,trainSet.result,testSet.result,file = paste0(folder,"/MulCox.result.Rdata"))

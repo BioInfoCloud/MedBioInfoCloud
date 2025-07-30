@@ -29,14 +29,17 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
     data = data[conid,]
     effLen = hsaGeneInfo[match(conid,hsaGeneInfo[,gtype]),"effLen"]
   }
-  if(tfun == "Counts2FPKM"){
-    data <- apply(data, 2, Counts2FPKM, effLen = effLen)
-  }else if(tfun == 'Counts2TPM'){
-    data <- apply(data, 2, Counts2TPM, effLen = effLen)
-  }else{
-    data <- apply(data,2,FPKM2TPM)
-  }
-  return(data)
+  if(tfun %in% c("Counts2FPKM",'Counts2TPM','FPKM2TPM')){
+    if(tfun == "Counts2FPKM"){
+      data <- apply(data, 2, Counts2FPKM, effLen = effLen)
+    }else if(tfun == 'Counts2TPM'){
+      data <- apply(data, 2, Counts2TPM, effLen = effLen)
+    }else if(tfun == 'FPKM2TPM'){
+      data <- apply(data,2,FPKM2TPM)
+    }
+    return(data)
+  }else{stop("tfun only support 'Counts2FPKM','FPKM2TPM' or 'Counts2TPM'")}
+
 }
 
 
@@ -45,14 +48,15 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 #' @param data for matrix input: a matrix of non-negative integers
 #' @param group for matrix input: a DataFrame or data.frame with at least a single column. Rows of group correspond to columns of countData
 #' @param comparison A string linked by "-" that represents the grouping information in the group. Such as "tumor-normal".
+#' @param cutFC >1
+#' @param cutFDR 0 < cutFDR < 0.05
 #' @param method One of DESeq2, edgeR, and limma.
-#' @param filter TRUE or FALSE
 #'
 #' @return A data.frame
 #' @export geneDEAnalysis
 #'
 geneDEAnalysis <- function (data, group, comparison,
-                              method = "DESeq2", filter = TRUE){
+                              method = "DESeq2",cutFC=2,cutFDR=0.05, filter = TRUE){
   dge = DGEList(counts = data)
   keep <- rowSums(cpm(dge) > 1) >= 0.5 * length(group)
   if (method == "DESeq2") {
@@ -95,5 +99,38 @@ geneDEAnalysis <- function (data, group, comparison,
   }
   DEGAll$symbol <- rownames(DEGAll)
   DEGAll <- dplyr::select(DEGAll, symbol, everything())
+
+  DEGAll <- DEGAll  %>%
+    dplyr::mutate(direction = factor(ifelse(FDR < cutFDR & abs(logFC) > cutFC,#添加direction一列
+                                            ifelse(logFC > cutFC, "Up", "Down"),"Ns"),
+                                     levels=c('Up','Down','Ns')))
   return(DEGAll)
+}
+
+#' arrayDataDEA_limma
+#'
+#' @param data matrix
+#' @param group a vector
+#' @param comparison character
+#' @param cutFC >1
+#' @param cutFDR 0< cutFDR <0.05
+#'
+#' @return data.frame
+#' @export arrayDataDEA_limma
+arrayDataDEA_limma <- function(data, group,comparison,cutFC = 2,cutFDR = 0.05){
+  glist <- group %>% factor(., levels = unique(group), ordered = F)
+  head(glist)
+  glist <- model.matrix(~factor(glist)+0)  #把group设置成一个model matrix
+  colnames(glist) <- unique(group)
+  df.fit <- lmFit(data, glist)  ## 数据与list进行匹配
+  df.matrix <- makeContrasts(comparison, levels = glist)
+  fit <- contrasts.fit(df.fit, df.matrix)
+  fit <- eBayes(fit)
+  tempOutput <- topTable(fit,n = Inf, adjust = "fdr")
+  colnames(tempOutput) <- c("logFC", "AveExpr","t","PValue","FDR","B")
+  tempOutput <- tempOutput  %>%
+    dplyr::mutate(direction = factor(ifelse(FDR < cutFDR & abs(logFC) > cutFC,#添加direction一列
+                                            ifelse(logFC > cutFC, "Up", "Down"),"Ns"),
+                                     levels=c('Up','Down','Ns')))
+  return(tempOutput)
 }

@@ -19,11 +19,11 @@ getTCGA_RNAseqData <- function(project,save = FALSE,folder = "."){
   )
   TCGAbiolinks::GDCdownload(query = query,method = "api",files.per.chunk=10)
   expRda <- TCGAbiolinks::GDCprepare(query,save = F,summarizedExperiment = F)##
-  count <- dplyr::select(expRda, matches("^unstranded|gene_id|gene_name|gene_type"))
+  count <- dplyr::select(expRda, matches("^unstranded|gene_id|gene_name|gene_type")) %>% as.data.frame()
   colnames(count) = gsub("unstranded_","",colnames(count))
-  tpm <- dplyr::select(expRda, matches("^tpm_unstranded|gene_id|gene_name|gene_type"))
+  tpm <- dplyr::select(expRda, matches("^tpm_unstranded|gene_id|gene_name|gene_type")) %>% as.data.frame()
   colnames(tpm) = gsub("tpm_unstranded_","",colnames(tpm))
-  fpkm <- dplyr::select(expRda, matches("^fpkm_unstranded|gene_id|gene_name|gene_type"))
+  fpkm <- dplyr::select(expRda, matches("^fpkm_unstranded|gene_id|gene_name|gene_type")) %>% as.data.frame()
   colnames(fpkm) = gsub("fpkm_unstranded_","",colnames(fpkm))
   STARdata <- list(count = count,tpm = tpm,fpkm = fpkm)
   if(save == TRUE){
