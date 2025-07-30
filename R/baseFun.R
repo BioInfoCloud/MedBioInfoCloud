@@ -82,12 +82,14 @@ RNAseqDataConversion <- function(data,type,species = "homo",gtf = NULL){
   if(type %in% c("Counts2TPM","Counts2FPKM","FPKM2TPM")){
     if(type == "FPKM2TPM"){
       return(FPKM2TPM(data))
-    }else if(is.null(species) & file.exists(gtf)){
-      ano <- getGeneBaseInfo(gtf)
     }else if(species == "homo"){
       ano <- MedBioInfoCloud::hsaGeneInfo
     }else if(species == "mus"){
       ano <- MedBioInfoCloud::musGeneInfo
+    }else if(is.null(species) & !is.null(gtf)){
+      if(is.character(gtf) & (length(gtf)==1) & grepl(".gtf$",gtf) & file.exists(gtf)){
+        ano <- getGeneBaseInfo(gtf)
+      }
     }
     ano <- dplyr::arrange(ano,Symbol,desc(effLen))
     ano <- ano[!duplicated(ano$Symbol),]

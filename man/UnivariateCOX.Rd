@@ -4,7 +4,7 @@
 \alias{UnivariateCOX}
 \title{UnivariateCOX}
 \usage{
-UnivariateCOX(data, variable)
+UnivariateCOX(data, variable, BaSurv)
 }
 \arguments{
 \item{data}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}

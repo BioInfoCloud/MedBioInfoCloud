@@ -4,14 +4,24 @@
 \alias{filterGeneTypeExpr}
 \title{RNAseq data in TCGA database were filtered according to genotype.}
 \usage{
-filterGeneTypeExpr(expr, fil_col = "gene_type", filter = FALSE)
+filterGeneTypeExpr(
+  expr,
+  rownname = "gene_name",
+  fil_col = "gene_type",
+  filter = FALSE,
+  delcol = c(1:3)
+)
 }
 \arguments{
 \item{expr}{Gene expression data.}
 
+\item{rownname}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+
 \item{fil_col}{A string. Column name to be filtered.}
 
 \item{filter}{A value in the fil_col column.}
+
+\item{delcol}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 }
 \value{
 data.frame
