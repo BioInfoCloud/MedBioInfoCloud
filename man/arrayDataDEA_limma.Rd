@@ -4,7 +4,7 @@
 \alias{arrayDataDEA_limma}
 \title{arrayDataDEA_limma}
 \usage{
-arrayDataDEA_limma(data, group, comparison, cutFC = 2, cutFDR = 0.05)
+arrayDataDEA_limma(data, group, comparison)
 }
 \arguments{
 \item{data}{matrix}
@@ -12,10 +12,6 @@ arrayDataDEA_limma(data, group, comparison, cutFC = 2, cutFDR = 0.05)
 \item{group}{a vector}
 
 \item{comparison}{character}
-
-\item{cutFC}{>1}
-
-\item{cutFDR}{0< cutFDR <0.05}
 }
 \value{
 data.frame

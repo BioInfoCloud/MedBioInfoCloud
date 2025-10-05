@@ -4,15 +4,7 @@
 \alias{geneDEAnalysis}
 \title{A function for differential expression analysis}
 \usage{
-geneDEAnalysis(
-  data,
-  group,
-  comparison,
-  method = "DESeq2",
-  cutFC = 2,
-  cutFDR = 0.05,
-  filter = TRUE
-)
+geneDEAnalysis(data, group, comparison, method = "DESeq2", filter = FALSE)
 }
 \arguments{
 \item{data}{for matrix input: a matrix of non-negative integers}
@@ -23,9 +15,7 @@ geneDEAnalysis(
 
 \item{method}{One of DESeq2, edgeR, and limma.}
 
-\item{cutFC}{>1}
-
-\item{cutFDR}{0 < cutFDR < 0.05}
+\item{filter}{Boolean value. Whether to filter out genes with low expression.}
 }
 \value{
 A data.frame

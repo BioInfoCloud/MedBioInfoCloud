@@ -48,62 +48,59 @@ RNAseqDataTrans <- function(data,tfun,species,gtype){
 #' @param data for matrix input: a matrix of non-negative integers
 #' @param group for matrix input: a DataFrame or data.frame with at least a single column. Rows of group correspond to columns of countData
 #' @param comparison A string linked by "-" that represents the grouping information in the group. Such as "tumor-normal".
-#' @param cutFC >1
-#' @param cutFDR 0 < cutFDR < 0.05
 #' @param method One of DESeq2, edgeR, and limma.
+#' @param filter Boolean value. Whether to filter out genes with low expression.
 #'
 #' @return A data.frame
 #' @export geneDEAnalysis
 #'
 geneDEAnalysis <- function (data, group, comparison,
-                              method = "DESeq2",cutFC=2,cutFDR=0.05, filter = TRUE){
-  dge = DGEList(counts = data)
-  keep <- rowSums(cpm(dge) > 1) >= 0.5 * length(group)
+                            method = "DESeq2", filter = FALSE){
+  dge = edgeR::DGEList(counts = data)
+  keep <- rowSums(edgeR::cpm(dge) > 1) >= 0.5 * length(group)
   if (method == "DESeq2") {
     coldata <- data.frame(group)
-    dds <- DESeqDataSetFromMatrix(countData = data, colData = coldata, design = ~group)
+    dds <- DESeq2::DESeqDataSetFromMatrix(countData = data, colData = coldata, design = ~group)
     dds$group <- factor(dds$group, levels = rev(strsplit(comparison, "-", fixed = TRUE)[[1]]))
     if (filter == TRUE) {
       dds <- dds[keep, ]
     }
-    dds <- DESeq(dds)
-    res <- results(dds)
+    dds <- DESeq2::DESeq(dds)
+    res <- DESeq2::results(dds)
     DEGAll <- data.frame(res)
-    colnames(DEGAll) <- c("baseMean", "logFC", "lfcSE", "stat", "PValue", "FDR")
+    DEGAll$FDR <- p.adjust(DEGAll$pvalue, method = "fdr")
+    colnames(DEGAll) <- c("baseMean", "log2FC", "lfcSE", "stat", "pValue","pAdj", "FDR")
   }
   else if (method %in% c("edgeR", "limma")) {
     group <- factor(group)
     design <- model.matrix(~0 + group)
     colnames(design) <- levels(group)
-    contrast.matrix <- makeContrasts(contrasts = comparison,
-                                     levels = design)
+    contrast.matrix <- limma::makeContrasts(contrasts = comparison,levels = design)
     if (filter == TRUE) {
       dge <- dge[keep, , keep.lib.sizes = TRUE]
     }
-    dge <- calcNormFactors(dge)
+    dge <- edgeR::calcNormFactors(dge)
     if (method == "edgeR") {
-      dge <- estimateDisp(dge, design)
-      fit <- glmFit(dge, design)
-      lrt <- glmLRT(fit, contrast = contrast.matrix)
+      dge <- edgeR::estimateDisp(dge, design)
+      fit <- edgeR::glmFit(dge, design)
+      lrt <- edgeR::glmLRT(fit, contrast = contrast.matrix)
       DEGAll <- lrt$table
+      DEGAll$pAdj <- p.adjust(DEGAll$PValue, method = "BH")
       DEGAll$FDR <- p.adjust(DEGAll$PValue, method = "fdr")
+      colnames(DEGAll) <- c("log2FC", "logCPM", "LR", "pValue","pAdj", "FDR")
     }
     else if (method == "limma") {
-      v <- voom(dge, design = design, plot = FALSE)
-      fit <- lmFit(v, design)
-      fit2 <- contrasts.fit(fit, contrast.matrix)
-      fit2 <- eBayes(fit2)
-      DEGAll <- topTable(fit2, coef = 1, n = Inf)
-      colnames(DEGAll) <- c("logFC", "AveExpr", "t", "PValue", "FDR", "B")
+      v <- limma::voom(dge, design = design, plot = FALSE)
+      fit <- limma::lmFit(v, design)
+      fit2 <- limma::contrasts.fit(fit, contrast.matrix)
+      fit2 <- limma::eBayes(fit2)
+      DEGAll <- limma::topTable(fit2, coef = 1, n = Inf)
+      DEGAll$FDR <- p.adjust(DEGAll$P.Value, method = "fdr")
+      colnames(DEGAll) <- c("log2FC", "AveExpr", "t", "pValue", "pAdj", "B","FDR")
     }
   }
   DEGAll$symbol <- rownames(DEGAll)
   DEGAll <- dplyr::select(DEGAll, symbol, everything())
-
-  DEGAll <- DEGAll  %>%
-    dplyr::mutate(direction = factor(ifelse(FDR < cutFDR & abs(logFC) > cutFC,#添加direction一列
-                                            ifelse(logFC > cutFC, "Up", "Down"),"Ns"),
-                                     levels=c('Up','Down','Ns')))
   return(DEGAll)
 }
 
@@ -112,25 +109,61 @@ geneDEAnalysis <- function (data, group, comparison,
 #' @param data matrix
 #' @param group a vector
 #' @param comparison character
-#' @param cutFC >1
-#' @param cutFDR 0< cutFDR <0.05
 #'
 #' @return data.frame
 #' @export arrayDataDEA_limma
-arrayDataDEA_limma <- function(data, group,comparison,cutFC = 2,cutFDR = 0.05){
+arrayDataDEA_limma <- function(data, group,comparison){
   glist <- group %>% factor(., levels = unique(group), ordered = F)
   head(glist)
-  glist <- model.matrix(~factor(glist)+0)  #把group设置成一个model matrix
+  glist <- limma::model.matrix(~factor(glist)+0)  #把group设置成一个model matrix
   colnames(glist) <- unique(group)
-  df.fit <- lmFit(data, glist)  ## 数据与list进行匹配
-  df.matrix <- makeContrasts(comparison, levels = glist)
-  fit <- contrasts.fit(df.fit, df.matrix)
-  fit <- eBayes(fit)
-  tempOutput <- topTable(fit,n = Inf, adjust = "fdr")
-  colnames(tempOutput) <- c("logFC", "AveExpr","t","PValue","FDR","B")
-  tempOutput <- tempOutput  %>%
-    dplyr::mutate(direction = factor(ifelse(FDR < cutFDR & abs(logFC) > cutFC,#添加direction一列
-                                            ifelse(logFC > cutFC, "Up", "Down"),"Ns"),
-                                     levels=c('Up','Down','Ns')))
-  return(tempOutput)
+  df.fit <- limma::lmFit(data, glist)  ## 数据与list进行匹配
+  df.matrix <- limma::makeContrasts(comparison, levels = glist)
+  fit <- limma::contrasts.fit(df.fit, df.matrix)
+  fit <- limma::eBayes(fit)
+  DEGAll <- limma::topTable(fit, coef = 1, n = Inf)
+  DEGAll$FDR <- p.adjust(DEGAll$P.Value, method = "fdr")
+  colnames(DEGAll) <- c("log2FC", "AveExpr", "t", "pValue", "pAdj", "B","FDR")
+  return(DEGAll)
+}
+
+#' Screening for differentially expressed genes
+#'
+#' @param DEAR a data.frame. The results of differential expression analysis,
+#'   must contain the column specified by `pMethod` (e.g., "FDR", "pAdj", "pValue")
+#'   and a "log2FC" column.
+#' @param cutFC The threshold absolute value for log2 fold change.
+#'   The default is 1.
+#' @param pMethod Metrics for statistical testing: "FDR", "pAdj" or "pValue".
+#' @param cutP Significance screening threshold. Default value: 0.05
+#'
+#' @returns data.frame with an additional "direction" column indicating
+#'   Up/Down/Ns (Not significant)
+#' @export selectDEG
+#'
+selectDEG <- function(DEAR, cutFC = 1, pMethod = "FDR", cutP = 0.05) {
+  # 检查必要的列是否存在
+  required_cols <- c(pMethod, "log2FC")
+  if (!all(required_cols %in% colnames(DEAR))) {
+    stop("DEAR must contain the following columns: ",
+         paste(required_cols, collapse = ", "))
+  }
+
+  # 检查pMethod是否为允许的值
+  if (!pMethod %in% c("FDR", "pAdj", "pValue")) {
+    stop("pMethod must be one of: 'FDR', 'pAdj', 'pValue'")
+  }
+
+  # 筛选差异表达基因并添加direction列
+  a = DEGAll %>%
+    dplyr::mutate(
+      direction = factor(
+        dplyr::case_when(
+          .data[[pMethod]] < cutP & .data[["log2FC"]] >= cutFC ~ "Up",
+          .data[[pMethod]] < cutP & .data[["log2FC"]] <= -cutFC ~ "Down",
+          TRUE ~ "Ns"
+        ),
+        levels = c("Up", "Down", "Ns")
+      )
+    )
 }
