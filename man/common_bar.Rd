@@ -2,24 +2,43 @@
 % Please edit documentation in R/enrichVisual.R
 \name{common_bar}
 \alias{common_bar}
-\title{common_bar}
+\title{Create a common bar plot for enrichment analysis results}
 \usage{
-common_bar(data, palette, axisTitle.x, axisTitle.y, title)
+common_bar(
+  data,
+  fill_by = "-log10(pvalue)",
+  color_palette = "RdPu",
+  color_direction = 1,
+  axisTitle.x,
+  axisTitle.y,
+  title
+)
 }
 \arguments{
-\item{data}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{data}{A data frame containing enrichment results. Must include columns:
+- 'Count': Number of genes in each term
+- 'Term': Enrichment terms (y-axis categories)
+- 'pvalue': P-values for coloring}
 
-\item{palette}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{fill_by}{A character string specifying the column name in `data` used for coloring bars.
+Typically "pvalue", "p.adjust", or "-log10(pvalue)". Defaults to "-log10(pvalue)".}
 
-\item{axisTitle.x}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{color_palette}{A character string specifying the color palette name (from RColorBrewer)
+or a vector of custom colors for gradient filling. Defaults to "RdPu".}
 
-\item{axisTitle.y}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{color_direction}{Numeric (1 or -1) indicating the direction of the color gradient.
+Use 1 for original order, -1 to reverse. Defaults to 1.}
 
-\item{title}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{axisTitle.x}{Character string for x-axis title.}
+
+\item{axisTitle.y}{Character string for y-axis title.}
+
+\item{title}{Character string for plot title.}
 }
 \value{
-list
+A ggplot2 object
 }
 \description{
-common_bar
+Generates a horizontal bar plot to visualize enrichment analysis results,
+with bars colored by statistical significance.
 }

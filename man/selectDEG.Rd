@@ -4,19 +4,30 @@
 \alias{selectDEG}
 \title{Screening for differentially expressed genes}
 \usage{
-selectDEG(DEAR, cutFC = 1, pMethod = "FDR", cutP = 0.05)
+selectDEG(
+  DEAR,
+  pMethod = "FDR",
+  cutFC = 1,
+  cutP = 0.05,
+  gene_col = "symbol",
+  top_n = 0
+)
 }
 \arguments{
 \item{DEAR}{a data.frame. The results of differential expression analysis,
 must contain the column specified by `pMethod` (e.g., "FDR", "pAdj", "pValue")
 and a "log2FC" column.}
 
+\item{pMethod}{Metrics for statistical testing: "FDR", "pAdj" or "pValue".}
+
 \item{cutFC}{The threshold absolute value for log2 fold change.
 The default is 1.}
 
-\item{pMethod}{Metrics for statistical testing: "FDR", "pAdj" or "pValue".}
-
 \item{cutP}{Significance screening threshold. Default value: 0.05}
+
+\item{gene_col}{基因名列名，默认"label"}
+
+\item{top_n}{顶部基因的数量（上调和下调分别标记此数量），默认3}
 }
 \value{
 data.frame with an additional "direction" column indicating

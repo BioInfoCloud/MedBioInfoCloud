@@ -136,34 +136,61 @@ arrayDataDEA_limma <- function(data, group,comparison){
 #'   The default is 1.
 #' @param pMethod Metrics for statistical testing: "FDR", "pAdj" or "pValue".
 #' @param cutP Significance screening threshold. Default value: 0.05
-#'
+#' @param gene_col 基因名列名，默认"label"
+#' @param top_n 顶部基因的数量（上调和下调分别标记此数量），默认3
 #' @returns data.frame with an additional "direction" column indicating
 #'   Up/Down/Ns (Not significant)
 #' @export selectDEG
 #'
-selectDEG <- function(DEAR, cutFC = 1, pMethod = "FDR", cutP = 0.05) {
-  # 检查必要的列是否存在
-  required_cols <- c(pMethod, "log2FC")
+selectDEG <- function(DEAR, pMethod = "FDR",cutFC = 1,cutP = 0.05,
+                      gene_col = "symbol", top_n = 0) {
+  # 检查必要列
+  required_cols <- c(pMethod, "log2FC", gene_col)
   if (!all(required_cols %in% colnames(DEAR))) {
-    stop("DEAR must contain the following columns: ",
-         paste(required_cols, collapse = ", "))
+    stop("缺少必要列：", paste(setdiff(required_cols, colnames(DEAR)), collapse = ", "))
   }
 
-  # 检查pMethod是否为允许的值
-  if (!pMethod %in% c("FDR", "pAdj", "pValue")) {
-    stop("pMethod must be one of: 'FDR', 'pAdj', 'pValue'")
+  # 检查top_n是否为正整数
+  if (!is.numeric(top_n) || top_n < 0 || top_n != as.integer(top_n)) {
+    stop("top_n必须是正整数（如0、1、2、3...）")
   }
 
-  # 筛选差异表达基因并添加direction列
-  a = DEGAll %>%
+  # 第一步：添加差异方向（Up/Down/Ns）
+  df <- DEAR %>%
     dplyr::mutate(
-      direction = factor(
-        dplyr::case_when(
-          .data[[pMethod]] < cutP & .data[["log2FC"]] >= cutFC ~ "Up",
-          .data[[pMethod]] < cutP & .data[["log2FC"]] <= -cutFC ~ "Down",
-          TRUE ~ "Ns"
-        ),
-        levels = c("Up", "Down", "Ns")
+      direction = dplyr::case_when(
+        .data[[pMethod]] < cutP & .data[["log2FC"]] >= cutFC ~ "Up",
+        .data[[pMethod]] < cutP & .data[["log2FC"]] <= -cutFC ~ "Down",
+        TRUE ~ "Ns"
       )
     )
+
+  # 第二步：按log2FC排序标记顶部基因（修复管道符）
+  if(top_n != 0){
+    # 上调基因：log2FC从大到小排序，取前top_n个
+    top_up <- df %>%
+      dplyr::filter(direction == "Up") %>%
+      dplyr::arrange(dplyr::desc(log2FC)) %>%  # 修复：添加管道符
+      dplyr::slice_head(n = top_n) %>%
+      dplyr::pull({{gene_col}})
+
+    # 下调基因：log2FC从小到大排序（最负的在前），取前top_n个
+    top_down <- df %>%
+      dplyr::filter(direction == "Down") %>%
+      dplyr::arrange(log2FC) %>%  # 修复：添加管道符
+      dplyr::slice_head(n = top_n) %>%
+      dplyr::pull({{gene_col}})
+
+    # 第三步：添加label列
+    df %>%
+      dplyr::mutate(
+        label = dplyr::case_when(
+          .data[[gene_col]] %in% top_up ~ .data[[gene_col]],
+          .data[[gene_col]] %in% top_down ~ .data[[gene_col]],
+          TRUE ~ ""
+        )
+      )
+  }else{df$label = ""}
+  return(df)
+
 }

@@ -3,7 +3,7 @@
 %   R/visualization.R
 \name{plotDEGvolcanoFig}
 \alias{plotDEGvolcanoFig}
-\title{plotDEGvolcanoFig}
+\title{Plot Volcano Figure for Differentially Expressed Genes}
 \usage{
 plotDEGvolcanoFig(
   data,
@@ -61,16 +61,12 @@ plotDEGvolcanoFig(
 \item{colour}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
 }
 \value{
-For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+A ggplot2 object (volcano plot)
 
 For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 
 For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
 }
 \description{
-plotDEGvolcanoFig
-
-plotDEGvolcanoFig
-
-plotDEGvolcanoFig
+Generates a volcano plot to visualize the relationship between log2 fold change and statistical significance of differentially expressed genes, with optional gene labeling.
 }

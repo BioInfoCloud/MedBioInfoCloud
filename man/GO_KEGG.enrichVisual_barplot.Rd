@@ -2,48 +2,62 @@
 % Please edit documentation in R/enrichVisual.R
 \name{GO_KEGG.enrichVisual_barplot}
 \alias{GO_KEGG.enrichVisual_barplot}
-\title{Title}
+\title{Visualize enrichment results as bar plot}
 \usage{
 GO_KEGG.enrichVisual_barplot(
   obj,
   showCategory = 6,
-  palette = "RdPu",
-  axisTitle.x = "Number of Gene",
-  axisTitle.y = "Term name",
-  title = "Enrichment barplot",
+  fill_by = "-log10(pvalue)",
+  color_palette = "RdPu",
+  color_direction = 1,
+  axisTitle.x = "Number of Genes",
+  axisTitle.y = "Term Name",
+  title = "Enrichment Barplot",
   save = FALSE,
   folder = "./",
   fileName = "EnrichBar",
   height = 6,
-  width = 10
+  width = 10,
+  style = "style1"
 )
 }
 \arguments{
-\item{showCategory}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{obj}{An enrichResult object from clusterProfiler package.}
 
-\item{palette}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{showCategory}{Integer specifying the number of top enrichment terms to display.
+Defaults to 6.}
 
-\item{axisTitle.x}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{fill_by}{Column name used for coloring bars. Options include "pvalue", "p.adjust",
+or "-log10(pvalue)". Defaults to "-log10(pvalue)".}
 
-\item{axisTitle.y}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{color_palette}{Color palette name (from RColorBrewer) or custom color vector.
+Defaults to "RdPu".}
 
-\item{title}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{color_direction}{Direction of color gradient (1 or -1). Defaults to 1.}
 
-\item{save}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{axisTitle.x}{X-axis title. Defaults to "Number of Genes".}
 
-\item{folder}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{axisTitle.y}{Y-axis title. Defaults to "Term Name".}
 
-\item{fileName}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{title}{Plot title. Defaults to "Enrichment Barplot".}
 
-\item{height}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{save}{Logical indicating whether to save the plot. Defaults to FALSE.}
 
-\item{width}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{folder}{Directory path for saving the plot. Defaults to "./".}
 
-\item{enrichResult}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{fileName}{File name prefix for saved plot. Defaults to "EnrichBar".}
+
+\item{height}{Plot height in inches. Defaults to 6.}
+
+\item{width}{Plot width in inches. Defaults to 10.}
+
+\item{style}{Plot style. Options: "style1" (standard bar plot) or "style2" (with term labels
+inside bars). Defaults to "style1".}
 }
 \value{
-list
+A ggplot2 object if plot is generated; NULL otherwise.
 }
 \description{
-Title
+Generates bar plots for GO/KEGG enrichment results from clusterProfiler's enrichResult object.
+Supports multiple styles and optional saving to file.
 }

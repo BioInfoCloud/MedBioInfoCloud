@@ -1,7 +1,7 @@
 Package: MedBioInfoCloud
 Type: Package
 Title: MedBioInfoCloud
-Version: 0.1.4
+Version: 0.2.1
 Author: DoubleHelix
 Maintainer: DoubleHelix <bioinfocloud@aliyun.com>
 Description: An R package of related tutorials on WeChat official account MedBioInfoCloud
@@ -13,6 +13,7 @@ Imports:
     dplyr,
     edgeR,
     GenomicFeatures,
+    GseaVis,
     ggplot2,
     ggpubr,
     ggrepel,
@@ -25,7 +26,12 @@ Imports:
     miRBaseVersions.db,
     RColorBrewer,
     reshape2,
-    TCGAbiolinks
+    TCGAbiolinks,
+    aPEAR,
+    clusterProfiler,
+    org.Hs.eg.db,
+    msigdbr,
+    data.table
 biocViews:
 Depends: 
     R (>= 4.0)
