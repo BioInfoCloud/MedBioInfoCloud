@@ -14,20 +14,20 @@ geneset2gmt(
 )
 }
 \arguments{
-\item{geneset}{A gene vector or a txt file path. Note that the contents of the txt text file should be one gene in a row.}
+\item{geneset}{A vector of gene names or a path to a txt file (file content should contain one gene per line)}
 
-\item{genesetname}{A string meaning the name of the gene set.}
+\item{genesetname}{A character string specifying the name of the gene set}
 
-\item{description}{A string used to introduce the gene set, default is NA.}
+\item{description}{A character string describing the gene set, default is NA}
 
-\item{return}{Return a value of "data frame" or "GeneSetCollection", said what kind of value, the equivalent of respectively with clusterProfiler: : read. GMT () function and GSEABase: : getGmt () function to read in the result of the GMT file, You can return the result as required.}
+\item{return}{The type of object to return, either "data.frame" or "GeneSetCollection"}
 
-\item{folder}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{folder}{Path to the output folder, default is current working directory}
 
-\item{filename}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{filename}{Name of the output GMT file (must end with .gmt)}
 }
 \value{
-"data frame" or "GeneSetCollection" object.
+An object of the type specified by the 'return' parameter
 }
 \description{
 geneset2gmt

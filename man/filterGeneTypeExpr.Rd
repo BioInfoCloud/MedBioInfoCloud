@@ -2,30 +2,51 @@
 % Please edit documentation in R/TCGAassist.R
 \name{filterGeneTypeExpr}
 \alias{filterGeneTypeExpr}
-\title{RNAseq data in TCGA database were filtered according to genotype.}
+\title{Filter gene expression TCGA database data by gene type}
 \usage{
 filterGeneTypeExpr(
   expr,
   rownname = "gene_name",
   fil_col = "gene_type",
-  filter = FALSE,
-  delcol = c(1:3)
+  filter = NULL,
+  delcol = 1:3
 )
 }
 \arguments{
-\item{expr}{Gene expression data.}
+\item{expr}{Data frame or matrix containing gene expression data. Rows typically represent genes, and columns include attribute columns (e.g., gene name, gene type) and expression columns.}
 
-\item{rownname}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{rownname}{Character string specifying the column name to be used as row names (e.g., gene name). Values in this column will be deduplicated. Defaults to "gene_name".}
 
-\item{fil_col}{A string. Column name to be filtered.}
+\item{fil_col}{Character string specifying the column name used for filtering (e.g., gene type column). Defaults to "gene_type".}
 
-\item{filter}{A value in the fil_col column.}
+\item{filter}{Character string or vector specifying gene types to retain (e.g., c("protein_coding","lncRNA")).
+If NULL, all types are retained. Defaults to NULL.}
 
-\item{delcol}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{delcol}{Integer vector specifying indices of non-numeric columns to remove (e.g., attribute columns). Defaults to removing the first 3 columns (c(1:3)).}
 }
 \value{
-data.frame
+Data frame of filtered expression data (row names are values from the specified column; columns only retain numeric expression data).
 }
 \description{
-RNAseq data in TCGA database were filtered according to genotype.
+This function filters gene expression data, allowing selection of specific gene types based on a designated column (e.g., gene type),
+while performing data cleaning (deduplication, NA removal, filtering low-variance rows) and format standardization (setting row names, removing redundant columns).
+}
+\examples{
+# Example data
+expr_data <- data.frame(
+  id = 1:5,
+  gene_name = c("geneA", "geneB", "geneA", "geneC", "geneD"),
+  gene_type = c("protein_coding", "lncRNA", "protein_coding", "miRNA", "lncRNA"),
+  sample1 = c(10, 20, 15, 5, 25),
+  sample2 = c(12, 18, 16, 6, 22),
+  stringsAsFactors = FALSE
+)
+
+# Filter protein-coding genes and lncRNAs, using gene_name as row names
+filtered_data <- filterGeneTypeExpr(
+  expr = expr_data,
+  rownname = "gene_name",
+  fil_col = "gene_type",
+  filter = c("protein_coding", "lncRNA")
+)
 }

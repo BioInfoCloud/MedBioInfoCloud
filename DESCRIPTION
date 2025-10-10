@@ -1,7 +1,7 @@
 Package: MedBioInfoCloud
 Type: Package
 Title: MedBioInfoCloud
-Version: 0.2.1
+Version: 0.2.2
 Author: DoubleHelix
 Maintainer: DoubleHelix <bioinfocloud@aliyun.com>
 Description: An R package of related tutorials on WeChat official account MedBioInfoCloud
