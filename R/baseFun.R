@@ -147,95 +147,150 @@ FPKM2TPM <- function(fpkm){
   exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
 }
 
-#' outputGmtFile
-#'
-#' @param input list or data.frame
-#' @param description NA
-#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @param filename filepath
-#' @return NULL
-#' @export outputGmtFile
-#'
 
+
+
+#' Generate a GMT file from gene set data
+#'
+#' This function converts gene set data (data frame or named list) into a GMT (Gene Matrix Transposed) file,
+#' with validation and cleaning steps to ensure data integrity. It removes empty values and invalid entries
+#' to produce a standard-compliant GMT file.
+#'
+#' @param input A data frame or named list containing gene set information:
+#'   - If data frame: Must have at least two columns. First column = gene set names (terms),
+#'     second column = genes in each term. Additional columns are ignored.
+#'   - If named list: Each element is a character vector of genes; list names = gene set terms.
+#'
+#' @param description Character vector of descriptions for gene sets. If shorter than the number of gene sets,
+#'   descriptions will be recycled. If `NA` (default), empty strings will be used.
+#'
+#' @param folder Path to directory where the GMT file will be saved. Creates directory recursively if it doesn't exist.
+#'   Defaults to current working directory (".").
+#'
+#' @param filename Name of the output GMT file (e.g., "pathways.gmt"). Recommended to use ".gmt" extension.
+#'
+#' @return No return value; writes a GMT file to the specified path.
+#'
+#' @details The GMT format requires each line to follow: `term<tab>description<tab>gene1<tab>gene2<tab>...`
+#'   This function ensures:
+#'   - Duplicate genes within a set are removed
+#'   - Empty gene sets (after cleaning) are skipped with warnings
+#'   - NA values and empty strings in gene lists are filtered out
+#'   - Proper handling of descriptions (recycling and empty value replacement)
+#'
+#' @examples
+#' # Example 1: Data frame input
+#' df <- data.frame(
+#'   term = c("GO:0001", "GO:0001", "GO:0002"),
+#'   gene = c("GeneA", NA, "GeneB"),  # Contains NA (will be filtered)
+#'   stringsAsFactors = FALSE
+#' )
+#' outputGmtFile(
+#'   input = df,
+#'   description = c("Cell cycle", "Signal transduction"),
+#'   folder = "output",
+#'   filename = "test_genesets.gmt"
+#' )
+#'
+#' # Example 2: Named list input
+#' gene_sets <- list(
+#'   "GO:0001" = c("GeneA", "GeneB", ""),  # Contains empty string (will be filtered)
+#'   "GO:0002" = c("GeneC", NA)            # Contains NA (will be filtered)
+#' )
+#' outputGmtFile(
+#'   input = gene_sets,
+#'   filename = "test_genesets.gmt"
+#' )
+#'
+#' @export
 outputGmtFile <- function(input, description = NA, folder = ".", filename) {
-  # 检查必要参数
+  # 1. Check for required filename parameter
   if (missing(filename)) {
-    stop("必须提供输出文件名(filename)")
+    stop("The 'filename' parameter must be provided")
+  }
+  # Warn about non-standard file extensions
+  if (!grepl("\\.gmt$", filename, ignore.case = TRUE)) {
+    warning("Filename is recommended to end with '.gmt' for compatibility with downstream tools")
   }
 
-  # 创建文件夹（如果需要）
+  # 2. Create output directory if it doesn't exist
   if (!dir.exists(folder)) {
     dir.create(folder, recursive = TRUE, showWarnings = FALSE)
   }
-
-  # 构建文件路径
   file_path <- file.path(folder, filename)
 
-  # 处理数据框输入：转换为列表
+  # 3. Process data frame input: convert to named list of gene sets
   if (is.data.frame(input)) {
     if (ncol(input) < 2) {
-      stop("数据框必须至少包含两列(term和gene)")
+      stop("Data frame input must contain at least two columns (terms and genes)")
     }
+    # Rename first two columns to standardize access
+    colnames(input)[1:2] <- c("term", "gene")
 
-    # 获取唯一的term
-    terms <- unique(input[[1]])
+    # Extract unique terms BEFORE converting to list (critical for naming)
+    terms <- unique(input$term)
 
-    # 按term分组提取基因
+    # Group genes by term with cleaning steps
     input <- lapply(terms, function(term) {
-      # 提取对应term的基因并转换为字符型
-      genes <- as.character(input[[2]][input[[1]] == term])
-      # 去重并确保至少有一个基因
+      # Extract genes for current term
+      genes <- input$gene[input$term == term]
+      # Remove NA values
+      genes <- na.omit(genes)
+      # Convert to character and remove empty strings
+      genes <- as.character(genes)
+      genes <- genes[genes != ""]
+      # Remove duplicate genes
       unique(genes)
     })
+    # Name list elements using pre-extracted terms
     names(input) <- terms
   }
 
-  # 验证列表输入
+  # 4. Validate list input and write GMT file
   if (is.list(input)) {
     if (is.null(names(input))) {
-      stop("输入列表必须有名称（作为基因集名称）")
+      stop("List input must have names (used as gene set identifiers)")
     }
 
-    # 打开文件连接
+    # Open file connection with automatic closure on exit
     con <- file(file_path, "wt")
-    on.exit(close(con))  # 确保函数退出时关闭文件
+    on.exit(close(con))
 
-    # 处理每个基因集
+    # Process each gene set
     for (i in seq_along(input)) {
       gene_set_name <- names(input)[i]
       genes <- input[[i]]
 
-      # 跳过空基因集
+      # Final cleaning of gene list
+      genes <- na.omit(genes)          # Remove any remaining NA values
+      genes <- as.character(genes)     # Ensure character type
+      genes <- genes[genes != ""]      # Remove empty strings
+
+      # Skip gene sets with no valid genes
       if (length(genes) == 0) {
-        warning(paste("跳过空基因集:", gene_set_name))
+        warning(paste("Skipping empty gene set:", gene_set_name))
         next
       }
 
-      # 处理描述（GMT允许空描述，但必须保留字段）
+      # Process description field
       if (is.na(description[1])) {
-        # 空描述用空字符串表示，但不能省略该字段
-        gene_set_desc <- ""
+        gene_set_desc <- ""  # Use empty string if no description provided
       } else {
-        # 确保描述数量足够，不足时循环使用
-        gene_set_desc <- description[((i - 1) %% length(description)) + 1]
-        # 确保描述是字符型
-        gene_set_desc <- as.character(gene_set_desc)
+        # Recycle descriptions if needed
+        desc_idx <- ((i - 1) %% length(description)) + 1
+        gene_set_desc <- as.character(description[desc_idx])
+        # Replace empty descriptions with placeholder
+        gene_set_desc <- ifelse(gene_set_desc == "", "No description", gene_set_desc)
       }
 
-      # 确保基因是字符型并去重
-      genes <- unique(as.character(genes))
-
-      # 构建GMT行：名称\t描述\t基因1\t基因2\t...
-      # 注意：三个部分之间以及基因之间都必须用制表符分隔
+      # Construct GMT line and write to file
       gmt_line <- paste(c(gene_set_name, gene_set_desc, genes), collapse = "\t")
-
-      # 写入文件
       writeLines(gmt_line, con)
     }
 
-    message("GMT文件已生成：", file_path)
+    message("GMT file generated successfully: ", file_path)
   } else {
-    stop("输入必须是数据框或带名称的列表")
+    stop("Input must be either a data frame (with 'term' and 'gene' columns) or a named list")
   }
 }
 

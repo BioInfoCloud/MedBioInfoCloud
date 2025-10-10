@@ -2,19 +2,62 @@
 % Please edit documentation in R/baseFun.R
 \name{outputGmtFile}
 \alias{outputGmtFile}
-\title{outputGmtFile}
+\title{Generate a GMT file from gene set data}
 \usage{
 outputGmtFile(input, description = NA, folder = ".", filename)
 }
 \arguments{
-\item{input}{list or data.frame}
+\item{input}{A data frame or named list containing gene set information:
+- If data frame: Must have at least two columns. First column = gene set names (terms),
+  second column = genes in each term. Additional columns are ignored.
+- If named list: Each element is a character vector of genes; list names = gene set terms.}
 
-\item{description}{NA}
+\item{description}{Character vector of descriptions for gene sets. If shorter than the number of gene sets,
+descriptions will be recycled. If `NA` (default), empty strings will be used.}
 
-\item{folder}{For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.}
+\item{folder}{Path to directory where the GMT file will be saved. Creates directory recursively if it doesn't exist.
+Defaults to current working directory (".").}
 
-\item{filename}{filepath}
+\item{filename}{Name of the output GMT file (e.g., "pathways.gmt"). Recommended to use ".gmt" extension.}
+}
+\value{
+No return value; writes a GMT file to the specified path.
 }
 \description{
-outputGmtFile
+This function converts gene set data (data frame or named list) into a GMT (Gene Matrix Transposed) file,
+with validation and cleaning steps to ensure data integrity. It removes empty values and invalid entries
+to produce a standard-compliant GMT file.
+}
+\details{
+The GMT format requires each line to follow: `term<tab>description<tab>gene1<tab>gene2<tab>...`
+  This function ensures:
+  - Duplicate genes within a set are removed
+  - Empty gene sets (after cleaning) are skipped with warnings
+  - NA values and empty strings in gene lists are filtered out
+  - Proper handling of descriptions (recycling and empty value replacement)
+}
+\examples{
+# Example 1: Data frame input
+df <- data.frame(
+  term = c("GO:0001", "GO:0001", "GO:0002"),
+  gene = c("GeneA", NA, "GeneB"),  # Contains NA (will be filtered)
+  stringsAsFactors = FALSE
+)
+outputGmtFile(
+  input = df,
+  description = c("Cell cycle", "Signal transduction"),
+  folder = "output",
+  filename = "test_genesets.gmt"
+)
+
+# Example 2: Named list input
+gene_sets <- list(
+  "GO:0001" = c("GeneA", "GeneB", ""),  # Contains empty string (will be filtered)
+  "GO:0002" = c("GeneC", NA)            # Contains NA (will be filtered)
+)
+outputGmtFile(
+  input = gene_sets,
+  filename = "test_genesets.gmt"
+)
+
 }
