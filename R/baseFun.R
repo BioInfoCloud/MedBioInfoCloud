@@ -157,66 +157,173 @@ FPKM2TPM <- function(fpkm){
 #' @export outputGmtFile
 #'
 
-outputGmtFile <- function(input,description = NA,folder= ".",filename){
-  ifelse(dir.exists(folder),"",dir.create(folder,recursive = T))
-  if(is.data.frame(input)){
-    nms <- unique(input[,1])
-    ls <- lapply(nms, function(nm){
-      input[input[,1]== nms[nm],2]
-    })
-    names(ls) <- nms
-    input = ls
+outputGmtFile <- function(input, description = NA, folder = ".", filename) {
+  # 检查必要参数
+  if (missing(filename)) {
+    stop("必须提供输出文件名(filename)")
   }
-  if(is.list(input)){
-    output <- file(paste0(folder,"/",filename), open="wt")
-    nms <- names(input)
-    lapply(1:length(nms),function(x){
-      if(!is.na(description)){
-        dsc = description[x]
-      }else{dsc = description}
-      outlines = paste0(c(nms[x], dsc, input[[x]]),collapse='\t')
-      writeLines(outlines, con=output)
+
+  # 创建文件夹（如果需要）
+  if (!dir.exists(folder)) {
+    dir.create(folder, recursive = TRUE, showWarnings = FALSE)
+  }
+
+  # 构建文件路径
+  file_path <- file.path(folder, filename)
+
+  # 处理数据框输入：转换为列表
+  if (is.data.frame(input)) {
+    if (ncol(input) < 2) {
+      stop("数据框必须至少包含两列(term和gene)")
+    }
+
+    # 获取唯一的term
+    terms <- unique(input[[1]])
+
+    # 按term分组提取基因
+    input <- lapply(terms, function(term) {
+      # 提取对应term的基因并转换为字符型
+      genes <- as.character(input[[2]][input[[1]] == term])
+      # 去重并确保至少有一个基因
+      unique(genes)
     })
-    close(output)
+    names(input) <- terms
+  }
+
+  # 验证列表输入
+  if (is.list(input)) {
+    if (is.null(names(input))) {
+      stop("输入列表必须有名称（作为基因集名称）")
+    }
+
+    # 打开文件连接
+    con <- file(file_path, "wt")
+    on.exit(close(con))  # 确保函数退出时关闭文件
+
+    # 处理每个基因集
+    for (i in seq_along(input)) {
+      gene_set_name <- names(input)[i]
+      genes <- input[[i]]
+
+      # 跳过空基因集
+      if (length(genes) == 0) {
+        warning(paste("跳过空基因集:", gene_set_name))
+        next
+      }
+
+      # 处理描述（GMT允许空描述，但必须保留字段）
+      if (is.na(description[1])) {
+        # 空描述用空字符串表示，但不能省略该字段
+        gene_set_desc <- ""
+      } else {
+        # 确保描述数量足够，不足时循环使用
+        gene_set_desc <- description[((i - 1) %% length(description)) + 1]
+        # 确保描述是字符型
+        gene_set_desc <- as.character(gene_set_desc)
+      }
+
+      # 确保基因是字符型并去重
+      genes <- unique(as.character(genes))
+
+      # 构建GMT行：名称\t描述\t基因1\t基因2\t...
+      # 注意：三个部分之间以及基因之间都必须用制表符分隔
+      gmt_line <- paste(c(gene_set_name, gene_set_desc, genes), collapse = "\t")
+
+      # 写入文件
+      writeLines(gmt_line, con)
+    }
+
+    message("GMT文件已生成：", file_path)
+  } else {
+    stop("输入必须是数据框或带名称的列表")
   }
 }
 
+
 #' geneset2gmt
 #'
-#' @param geneset A gene vector or a txt file path. Note that the contents of the txt text file should be one gene in a row.
-#' @param genesetname A string meaning the name of the gene set.
-#' @param description A string used to introduce the gene set, default is NA.
-#' @param return Return a value of "data frame" or "GeneSetCollection", said what kind of value, the equivalent of respectively with clusterProfiler: : read. GMT () function and GSEABase: : getGmt () function to read in the result of the GMT file, You can return the result as required.
-#' @param folder For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
-#' @param filename For more learning materials, please refer to https://github.com/BioInfoCloud/MedBioInfoCloud.
+#' @param geneset A vector of gene names or a path to a txt file (file content should contain one gene per line)
+#' @param genesetname A character string specifying the name of the gene set
+#' @param description A character string describing the gene set, default is NA
+#' @param return The type of object to return, either "data.frame" or "GeneSetCollection"
+#' @param folder Path to the output folder, default is current working directory
+#' @param filename Name of the output GMT file (must end with .gmt)
 #'
-#' @return "data frame" or "GeneSetCollection" object.
-#' @export geneset2gmt
+#' @return An object of the type specified by the 'return' parameter
+#' @export
 #'
 geneset2gmt <- function(geneset,
                         genesetname,
                         description = NA,
                         return = "data.frame",
-                        folder= ".",filename){
-  if(length(geneset) == 1 ){
-    if(grep(".txt$",geneset) & file.exists(geneset)){
-      geneset <- readLines(geneset)
+                        folder = ".",
+                        filename) {
+  # Check required parameters
+  if (missing(genesetname) || is.null(genesetname) || genesetname == "") {
+    stop("Must specify a valid gene set name (genesetname)")
+  }
+
+  if (missing(filename)) {
+    stop("Must provide an output filename (filename)")
+  }
+
+  # Check if filename ends with .gmt
+  if (!grepl("\\.gmt$", filename, ignore.case = TRUE)) {
+    stop("Filename must end with .gmt")
+  }
+
+  # Process input geneset: if it's a txt file path, read genes
+  if (length(geneset) == 1 && is.character(geneset)) {
+    if (grepl("\\.txt$", geneset, ignore.case = TRUE)) {
+      if (!file.exists(geneset)) {
+        stop("Specified txt file does not exist: ", geneset)
+      }
+      # Read genes from txt file (one gene per line)
+      geneset <- readLines(geneset, warn = FALSE)
+      # Remove empty lines and whitespace
+      geneset <- trimws(geneset)
+      geneset <- geneset[geneset != ""]
     }
   }
-  if(is.vector(geneset) & length(geneset) > 1){
-    input <- list(geneset = geneset)
-    names(input) <- genesetname
+
+  # Validate gene set
+  if (!is.vector(geneset) || length(geneset) == 0) {
+    stop("Gene set must be a valid vector or txt file containing genes")
   }
-  if(exists("input") & grep("gmt$",filename)){
-    outputGmtFile(input = input,description = description,folder,filename = filename)
-    if(return == "data.frame"){
-      gs <- clusterProfiler::read.gmt(paste0(folder,"/",filename))
-    }else if(return == "GeneSetCollection"){
-      gs <- GSEABase::getGmt(paste0(folder,"/",filename))
+
+  # Construct input list
+  input <- list(geneset)
+  names(input) <- genesetname
+
+  # Generate GMT file
+  outputGmtFile(
+    input = input,
+    description = description,
+    folder = folder,
+    filename = filename
+  )
+
+  # Build full file path
+  file_path <- file.path(folder, filename)
+
+  # Return appropriate result based on 'return' parameter
+  if (return == "data.frame") {
+    if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+      stop("clusterProfiler package is required. Please install it with: install.packages('clusterProfiler')")
     }
-    return(gs)
-  }else{stop("Error:geneset or filename")}
+    gs <- clusterProfiler::read.gmt(file_path)
+  } else if (return == "GeneSetCollection") {
+    if (!requireNamespace("GSEABase", quietly = TRUE)) {
+      stop("GSEABase package is required. Please install it with: BiocManager::install('GSEABase')")
+    }
+    gs <- GSEABase::getGmt(file_path)
+  } else {
+    stop("return parameter must be either 'data.frame' or 'GeneSetCollection'")
+  }
+
+  return(gs)
 }
+
 
 
 #' tidy.gmt
