@@ -2,7 +2,7 @@
 % Please edit documentation in R/TCGAassist.R
 \name{filterGeneTypeExpr}
 \alias{filterGeneTypeExpr}
-\title{Filter gene expression TCGA database data by gene type}
+\title{Filter expression data by gene type}
 \usage{
 filterGeneTypeExpr(
   expr,
@@ -13,23 +13,28 @@ filterGeneTypeExpr(
 )
 }
 \arguments{
-\item{expr}{Data frame or matrix containing gene expression data. Rows typically represent genes, and columns include attribute columns (e.g., gene name, gene type) and expression columns.}
+\item{expr}{A data frame or matrix containing gene expression data. Rows are typically genes, and columns include
+attribute columns (e.g., gene name, gene type) and numeric expression columns.}
 
-\item{rownname}{Character string specifying the column name to be used as row names (e.g., gene name). Values in this column will be deduplicated. Defaults to "gene_name".}
+\item{rownname}{A character string specifying the column name to be used as row names (e.g., gene name). Values in this
+column will be deduplicated. Defaults to "gene_name".}
 
-\item{fil_col}{Character string specifying the column name used for filtering (e.g., gene type column). Defaults to "gene_type".}
+\item{fil_col}{A character string specifying the column name used for filtering (e.g., gene type column). Defaults to "gene_type".}
 
-\item{filter}{Character string or vector specifying gene types to retain (e.g., c("protein_coding","lncRNA")).
-If NULL, all types are retained. Defaults to NULL.}
+\item{filter}{A character string or vector specifying the gene types to retain (e.g., c("protein_coding", "lncRNA")).
+If NULL, all gene types are retained. Defaults to NULL.}
 
-\item{delcol}{Integer vector specifying indices of non-numeric columns to remove (e.g., attribute columns). Defaults to removing the first 3 columns (c(1:3)).}
+\item{delcol}{An integer vector specifying the indices of non-numeric columns to remove (e.g., attribute columns).
+Defaults to removing the first 3 columns (c(1:3)).}
 }
 \value{
-Data frame of filtered expression data (row names are values from the specified column; columns only retain numeric expression data).
+A data frame of filtered expression data, with row names set to values from the specified `rownname` column,
+  and columns restricted to numeric expression columns.
 }
 \description{
-This function filters gene expression data, allowing selection of specific gene types based on a designated column (e.g., gene type),
-while performing data cleaning (deduplication, NA removal, filtering low-variance rows) and format standardization (setting row names, removing redundant columns).
+This function filters gene expression data by retaining specific types of genes based on a specified column (e.g., gene type).
+It also performs data cleaning (deduplication, NA removal, filtering low-variance rows) and format standardization
+(setting row names, removing redundant columns).
 }
 \examples{
 # Example data
@@ -42,7 +47,7 @@ expr_data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Filter protein-coding genes and lncRNAs, using gene_name as row names
+# Filter protein-coding genes and lncRNAs, with "gene_name" as row names
 filtered_data <- filterGeneTypeExpr(
   expr = expr_data,
   rownname = "gene_name",

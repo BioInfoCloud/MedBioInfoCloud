@@ -201,19 +201,24 @@ delTCGA_dup_sample <- function(data,col_rename =T){
 }
 
 
-#' Filter gene expression TCGA database data by gene type
+#' Filter expression data by gene type
 #'
-#' This function filters gene expression data, allowing selection of specific gene types based on a designated column (e.g., gene type),
-#' while performing data cleaning (deduplication, NA removal, filtering low-variance rows) and format standardization (setting row names, removing redundant columns).
+#' This function filters gene expression data by retaining specific types of genes based on a specified column (e.g., gene type).
+#' It also performs data cleaning (deduplication, NA removal, filtering low-variance rows) and format standardization
+#' (setting row names, removing redundant columns).
 #'
-#' @param expr Data frame or matrix containing gene expression data. Rows typically represent genes, and columns include attribute columns (e.g., gene name, gene type) and expression columns.
-#' @param rownname Character string specifying the column name to be used as row names (e.g., gene name). Values in this column will be deduplicated. Defaults to "gene_name".
-#' @param fil_col Character string specifying the column name used for filtering (e.g., gene type column). Defaults to "gene_type".
-#' @param filter Character string or vector specifying gene types to retain (e.g., c("protein_coding","lncRNA")).
-#'   If NULL, all types are retained. Defaults to NULL.
-#' @param delcol Integer vector specifying indices of non-numeric columns to remove (e.g., attribute columns). Defaults to removing the first 3 columns (c(1:3)).
+#' @param expr A data frame or matrix containing gene expression data. Rows are typically genes, and columns include
+#'   attribute columns (e.g., gene name, gene type) and numeric expression columns.
+#' @param rownname A character string specifying the column name to be used as row names (e.g., gene name). Values in this
+#'   column will be deduplicated. Defaults to "gene_name".
+#' @param fil_col A character string specifying the column name used for filtering (e.g., gene type column). Defaults to "gene_type".
+#' @param filter A character string or vector specifying the gene types to retain (e.g., c("protein_coding", "lncRNA")).
+#'   If NULL, all gene types are retained. Defaults to NULL.
+#' @param delcol An integer vector specifying the indices of non-numeric columns to remove (e.g., attribute columns).
+#'   Defaults to removing the first 3 columns (c(1:3)).
 #'
-#' @return Data frame of filtered expression data (row names are values from the specified column; columns only retain numeric expression data).
+#' @return A data frame of filtered expression data, with row names set to values from the specified `rownname` column,
+#'   and columns restricted to numeric expression columns.
 #' @export
 #'
 #' @examples
@@ -227,7 +232,7 @@ delTCGA_dup_sample <- function(data,col_rename =T){
 #'   stringsAsFactors = FALSE
 #' )
 #'
-#' # Filter protein-coding genes and lncRNAs, using gene_name as row names
+#' # Filter protein-coding genes and lncRNAs, with "gene_name" as row names
 #' filtered_data <- filterGeneTypeExpr(
 #'   expr = expr_data,
 #'   rownname = "gene_name",
@@ -244,57 +249,58 @@ filterGeneTypeExpr <- function(
   # Parameter validation: Ensure input is a data frame
   if (!is.data.frame(expr)) {
     expr <- as.data.frame(expr, stringsAsFactors = FALSE)
-    message("Input data converted to data frame format")
+    message("Input data has been converted to data frame format")
   }
 
   # Parameter validation: Check if specified columns exist
   if (!rownname %in% colnames(expr)) {
-    stop(paste("Row name column '", rownname, "' not found in input data"))
+    stop(paste("Row name column '", rownname, "' does not exist in the input data", sep = ""))
   }
   if (!fil_col %in% colnames(expr)) {
-    stop(paste("Filter column '", fil_col, "' not found in input data"))
+    stop(paste("Filter column '", fil_col, "' does not exist in the input data", sep = ""))
   }
 
   # Parameter validation: Check if delete column indices are valid
   if (any(delcol < 1 | delcol > ncol(expr))) {
-    stop("Delete column indices are out of range for the input data")
+    stop("Delete column indices are out of range of the data frame columns")
   }
 
-  # Step 1: Filter rows with zero variance (only for numeric columns not marked for deletion)
-  numeric_cols <- setdiff(1:ncol(expr), delcol)
+  # Step 1: Filter rows with zero variance (only for numeric columns not in delcol)
+  numeric_cols <- colnames(expr)[-delcol]
   if (length(numeric_cols) == 0) {
     stop("Delete column indices cover all columns; no numeric data can be retained")
   }
-  # Calculate row variance (only for numeric columns) and filter out rows with zero variance
+  # Calculate row variance (only for numeric columns) and filter zero-variance rows
+  expr = as.data.frame(expr)
   row_vars <- apply(expr[, numeric_cols, drop = FALSE], 1, function(x) var(x, na.rm = TRUE))
   filtered_data <- expr[row_vars != 0, , drop = FALSE]
 
-  # Step 2: Add row sums for sorting (will be removed later)
+  # Step 2: Add a row sum column for sorting (will be removed later)
   filtered_data <- dplyr::mutate(
     filtered_data,
     row_sum = rowSums(filtered_data[, numeric_cols, drop = FALSE], na.rm = TRUE)
   )
 
-  # Step 3: Sort by row sums in descending order (improves stability of deduplication)
+  # Step 3: Sort by row sum in descending order (improves stability of deduplication)
   filtered_data <- dplyr::arrange(filtered_data, dplyr::desc(row_sum))
 
-  # Step 4: Remove duplicates and NA values (based on the specified row name column)
-  filtered_data <- filtered_data[!duplicated(filtered_data[[rownname]]), , drop = FALSE]  # Remove duplicates
-  filtered_data <- filtered_data[!is.na(filtered_data[[rownname]]), , drop = FALSE]       # Remove NA values
+  # Step 4: Deduplicate and remove NA (based on the specified row name column)
+  filtered_data <- filtered_data[!duplicated(filtered_data[[rownname]]), , drop = FALSE]  # Deduplication
+  filtered_data <- filtered_data[!is.na(filtered_data[[rownname]]), , drop = FALSE]       # Remove NA
 
   # Step 5: Set row names
   rownames(filtered_data) <- filtered_data[[rownname]]
 
   # Step 6: Filter by gene type (if filter is specified)
   if (!is.null(filter)) {
-    # Check if filter values exist in the filter column
+    # Check if filter values exist in fil_col
     valid_types <- unique(filtered_data[[fil_col]])
     invalid_filter <- setdiff(filter, valid_types)
     if (length(invalid_filter) > 0) {
-      warning(paste("The following filter values do not exist in column", fil_col, ":",
-                    paste(invalid_filter, collapse = ", ")))
+      warning(paste("The following types in 'filter' do not exist in column '", fil_col, "': ",
+                    paste(invalid_filter, collapse = ", "), sep = ""))
     }
-    # Retain rows matching filter criteria
+    # Retain rows matching the filter
     filtered_data <- filtered_data[filtered_data[[fil_col]] %in% filter, , drop = FALSE]
 
     # Return empty data frame with warning if no data remains after filtering
@@ -304,7 +310,7 @@ filterGeneTypeExpr <- function(
     }
   }
 
-  # Step 7: Remove redundant columns (specified delete columns and temporarily added row_sum)
+  # Step 7: Remove redundant columns (specified delete columns and temporary row_sum)
   cols_to_keep <- setdiff(1:ncol(filtered_data), c(delcol, ncol(filtered_data)))
   result <- filtered_data[, cols_to_keep, drop = FALSE]
 
